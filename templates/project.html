@@ -1,0 +1,90 @@
+$def with (projects)
+
+
+<div class="container">
+	<div class="jumbotron">
+		<h1> 项目总览 </h1>
+	</div>
+	
+  
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<div id="project" class="bs-example">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>编号</th>
+								<th>项目编号</th>
+								<th>项目名称</th>
+								<th>所申领产品ID</th>
+								<th>所申领产品名称</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							$for project in projects:
+								<tr>
+									<td>$project.id</td>
+									<td>$project.project_id</td>
+									<td>$project.name</td>
+									<td>$project.material_id</td>
+									<td></td>
+									<td>
+										<form action="/deleteProject/$project.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
+											<input type="submit" class="btn btn-warning" value="删除"/>
+										</form>
+									</td>
+								</tr>
+							<tr bgcolor="#F5F5F5">
+								<td style="font-weight: bold;">新增项目</td>
+								<td><input id="project_number" type="text"></td>
+								<td><input id="project_name" type="text"></td>
+								<td>/</td>
+								<td>/</td>
+								<td><button type="button" class="btn btn-primary " onclick="NewProject()">提交</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- <div class="col-sm-4"> -->
+				<!-- <div id="new_project" class="bs-example">	 -->
+					<!-- 新增项目<br> -->
+					<!-- <form> -->
+						<!-- <center>项目名称：<input type="text" id="project_name"><br><br><br> -->
+						<!-- <center>项目编号：<input type="text" id="project_number"><br><br><br> -->
+						<!-- <div id="newProject" class="bs-example">	 -->
+							<!-- <button type="button" class="btn btn-primary " onclick="NewProject()">提交</button> -->
+						<!-- </div> -->
+					<!-- </form> -->
+				<!-- </div> -->
+			<!-- </div> -->
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+
+	function NewProject(){
+		var project_name=document.getElementById("project_name").value;
+        var project_number=document.getElementById("project_number").value;
+        if(project_name==""||project_number==""){
+            alert("请先输入项目信息")
+        }else{
+        // AJAX request
+        $$.ajax({
+			type: "POST",
+			url: "/project",
+			data: 'id='+project_number+'&name='+project_name
+			}).done(function( msg ) {
+				alert(msg);
+				window.location.reload(true);
+			});
+		}
+	}
+
+</script> 
+
+

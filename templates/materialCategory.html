@@ -1,0 +1,83 @@
+$def with (category)
+
+
+<div class="container">
+	<div class="jumbotron">
+		<h1> 商品类别总览 </h1>
+	</div>
+  
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<div id="categoryInfo" class="bs-example">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>编号</th>
+								<th>类别编号</th>
+								<th>类别名称</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							$for value in category:
+								<tr>
+									<td>$value.id</td>
+									<td>$value.serial_no</td>
+									<td>$value.name</td>
+									<td>
+										<form action="/deleteCategory/$value.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
+											<input type="submit" class="btn btn-warning" value="删除"/>
+										</form>
+									</td>
+								</tr>
+							<tr bgcolor="#F5F5F5">
+								<td style="font-weight: bold;">新增类别</td>
+								<td><input id="category_no" type="text"></td>
+								<td><input id="category_name" type="text"></td>
+								<td><button type="button" class="btn btn-primary " onclick="NewCategory()">提交</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- <div class="col-sm-4"> -->
+				<!-- <div id="new_category" class="bs-example">	 -->
+					<!-- 新增类别<br> -->
+					<!-- <form> -->
+						<!-- <center>类别名称：<input type="text" id="category_name"><br><br><br> -->
+						<!-- <center>类别编号：<input type="text" id="category_no"><br><br><br> -->
+						<!-- <div id="newCategory" class="bs-example"> -->
+							<!-- <button type="button" class="btn btn-primary " onclick="NewCategory()">提交</button> -->
+						<!-- </div> -->
+					<!-- </form> -->
+				<!-- </div> -->
+			<!-- </div> -->
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+
+	function NewCategory(){
+		var name=document.getElementById("category_name").value;
+        var number=document.getElementById("category_no").value;
+        if( name == "" || number == ""){
+            alert("请先输入类别信息")
+        }else{
+        // AJAX request
+        $$.ajax({
+			type: "POST",
+			url: "/materialCategory",
+			data: 'name='+name+'&number='+number
+			}).done(function( msg ) {
+				alert(msg);
+				window.location.reload(true);
+			});
+		}
+	}
+	
+</script> 
+
+

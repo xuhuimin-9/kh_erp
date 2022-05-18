@@ -1,0 +1,406 @@
+$def with (allCategory,materials,projects)
+
+
+<div class="container">
+	<div class="jumbotron">
+		<h1> 出库模块 </h1>
+	</div>
+  
+	<div class="container">
+		<div class="row">
+			<div>
+				<div id="outStorage" class="bs-example">
+					
+					
+					<div class="row">
+						<div class="col-sm-4" >
+							<h4>请选择所申请的项目名称</h4>
+							<select id="projectName" style="width:300px;height:90px;border:3px #cccccc dashed;">
+								$for value in projects:
+									<option>$value.name</option>
+							</select>
+						</div>
+						
+						<div class="col-sm-8">
+							<h4>请选择所需要出库的类别及商品</h4>
+							<table class="table table-striped" id="filterTable">
+								<thead>
+									<tr>
+										<th>类别编号</th>
+										<th>类别名称</th>
+										<th>商品编号</th>
+										<th>商品名称</th>
+										<th>操作</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>
+											$if allCategory :
+												<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+										</td>
+										
+										<td><select id="categoryName" >
+											$for value in allCategory:
+												<option>$value.name</option>
+										</select></td>
+										
+										<td>
+											$if allCategory :
+												<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
+										</td>
+										<td><select id="materialName" length="10px">
+											$for value in materials:
+												<option>$value.name</option>
+										</select></td>
+										
+										<td><button id="filter" type="button" class="btn btn-primary">筛选</button></td>
+									</tr>
+								
+								</tbody>
+							</table>
+						</div>
+					</div>
+						
+					
+					<br><br><br>
+					
+					
+					<table class="table table-striped" >
+						<thead>
+							<tr>
+								<th>编号</th>
+								<th>入库时间</th>
+								<th>商品名称</th>
+								<th>商品单位</th>
+								<th>库存数量</th>
+								<th>未税金额</th>
+								<th>税率</th>
+								<th>含税金额</th>
+								<th>出库数量</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody  id="storageTable">
+							
+							
+							
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script src="static/jquery-1.9.1.min.js"></script>
+<script>
+
+	
+	// 出库按钮监听
+	/*$$('body').on("click", ".outButtom", function () {
+	
+		//出库id【io表中这条库存信息的id号，不是商品id】
+		var id=$$(".id").html();
+		
+		//出库数量
+		var count=$$(".outCount").val();
+		if(count==""||count=="")
+		{
+            alert("出库商品信息不全，请检查商品信息！")
+        }
+		else
+		{
+			//OutStorage(id,count);
+		}
+	
+    });*/
+	
+		
+	
+	$$('body').on("input", ".untax", function () {
+		
+		var value=$$(this).parent().parent().find(".tax").val();
+		//test1();
+		test2(value);
+		
+    })
+	
+	
+
+	
+
+</script>
+	
+<script type="text/javascript">
+	function edit(val){ 
+ 
+        //这里就是val，别以为写错了，如果写成this会报错：Uncaught SyntaxError: Unexpected token 'this'，这是转过来的参数值的意思
+        var id=$$(val).parent().parent().find(".id").text();
+		alert(id);
+		
+		var count = $$(val).parent().parent().find(".outCount").val();
+		alert(count);
+		
+		/*console.log(value);
+		console.log(value.eq(0));
+		console.log(value.eq(0).innerHTML);
+		console.log(value.eq(1).value);
+        console.log(value.eq(0).val());   //得到第三列的数据*/
+ 
+	}
+	
+	
+	function test1(){
+		alert(1);
+	}
+	
+	function test2(value){
+		alert(value);
+	}
+	
+	function OutStorage(val){
+		
+		//这里就是val，别以为写错了，如果写成this会报错：Uncaught SyntaxError: Unexpected token 'this'，这是转过来的参数值的意思
+        var id=$$(val).parent().parent().find(".id").text();
+		
+		var count = $$(val).parent().parent().find(".outCount").val();
+		
+		var project=document.getElementById("projectName").value;
+		
+		$$.ajax({
+			type: "POST",
+			url: "/outStorage",
+			data: JSON.stringify({id:id,outCount:count,project:project})
+			}).done(function( msg ) {
+				alert(msg);
+				window.location.reload(true);
+			});
+	
+	}
+	
+	//筛选功能 选择类别id和商品id后进行筛选 
+	$$('#filter').click(function(){
+		
+		var  categoryId= document.getElementById("categoryId").value;
+		var  materialId= document.getElementById("materialId").value;
+		
+		//获得显示库存信息的表格 并根据条件筛选更新表格
+		var table = document.getElementById("storageTable");
+		
+		$$.ajax({
+			type: "POST",
+			url: "/filterMaterial",
+			data: JSON.stringify({categoryId:categoryId,materialId:materialId})
+			}).done(function( msg ) {
+			
+				// 清空当前table的所有数据
+				while (table.hasChildNodes()) {
+				  table.removeChild(table.lastChild);
+				}
+			
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				alert(material_number);
+				
+				//var tr = document.createElement("tr");		//创建tr元素
+				for( var i = 0 ; i < material_number ; i++ )
+				{
+					
+					var tr = table.insertRow(-1);		//在最后增加一行
+					
+					var tdId = tr.insertCell(-1);	//在最后增加一列
+					tdId.innerHTML = msgJson.material[i].id;
+					tdId.className="id";
+					
+					var tdTime = tr.insertCell(-1);	
+					tdTime.innerHTML = msgJson.material[i].create_time;
+					
+					var tdName = tr.insertCell(-1);	
+					tdName.innerHTML = msgJson.material[i].name;
+					
+					var tdUnit = tr.insertCell(-1);	
+					tdUnit.innerHTML = msgJson.material[i].unit;
+					
+					var tdCount = tr.insertCell(-1);	
+					tdCount.innerHTML = msgJson.material[i].count;
+					
+					var tdPrice = tr.insertCell(-1);	
+					tdPrice.innerHTML = msgJson.material[i].price;
+					
+					var tdTax = tr.insertCell(-1);	
+					tdTax.innerHTML = msgJson.material[i].tax_rate;
+					
+					var tdTaxPrice = tr.insertCell(-1);	
+					tdTaxPrice.innerHTML = msgJson.material[i].tax_price;
+					
+					value = Number(msgJson.material[i].count);
+					alert(value);
+					var tdOutCount = tr.insertCell(-1);	
+					tdOutCount.innerHTML = "<input type='number' min=1 step=1 max="+value+" class='outCount' id='' value='1' >";
+					
+					var tdButtom = tr.insertCell(-1);
+					tdButtom.innerHTML = "<input type='submit' class='outButtom' onclick='OutStorage(this)'  value='出库'>";
+					//tdButtom.innerHTML = "<input type='submit' class='outButtom' class='btn btn-warning'  value='出库'>";
+					
+					
+					//td1.innerHTML="<input type='text' id='' value=1 style=''>";
+				}
+				
+				
+			});
+	});
+	
+	//类别ID进行选择后 更新该类别下的所有商品信息【取消，改为类别名称选择】
+	$$('#categoryId').change(function(){
+		
+		var  categoryId= document.getElementById("categoryId").value;
+		var  materialName= document.getElementById("categoryName");
+		var  materialId= document.getElementById("materialId");
+		var  materialName= document.getElementById("materialName");
+		
+		
+		$$.ajax({
+			type: "POST",
+			url: "/categoryChange",
+			data: JSON.stringify({category:categoryId})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number == 0 )
+				{
+					alert("搜索失败！该类别下未查询到商品信息！");
+					document.getElementById("materialId").value="";
+					document.getElementById("materialName").value="";
+				}
+				else
+				{				
+					materialId.options.length = 0; // 清除second下拉框的所有内容
+					
+					for( var i = 0 ; i < material_number ; i++ )
+					{
+						id=msgJson.material[i].material_id;
+						materialId.options.add(new Option(id));
+						if(i == 0)
+						{
+							categoryName = msgJson.material[i].category_name;
+							document.getElementById("categoryName").value=categoryName;
+							materialName = msgJson.material[i].name;
+							document.getElementById("materialName").value=name;
+							
+						}
+					}
+				}
+				
+			});
+	});
+	
+	//类别名称进行选择后 更新该类别下的所有商品信息 【更新商品名称列表，及商品id、单位】
+	$$('#categoryName').change(function(){
+		
+		var  categoryName= document.getElementById("categoryName").value;
+		var  materialName= document.getElementById("materialName");
+		
+		$$.ajax({
+			type: "POST",
+			url: "/categoryNameChange",
+			data: JSON.stringify({category:categoryName})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number == 0 )
+				{
+					alert("搜索失败！该类别下未查询到商品信息！");
+					document.getElementById("materialId").value="";
+					document.getElementById("materialName").value="";
+				}
+				else
+				{				
+					materialName.options.length = 0; // 清除下拉框的所有内容
+					
+					for( var i = 0 ; i < material_number ; i++ )
+					{
+						name=msgJson.material[i].name;
+						materialName.options.add(new Option(name));
+						if(i == 0)
+						{
+							//类别名称更改后 id同步更改
+							categoryId = msgJson.material[i].category_id;
+							document.getElementById("categoryId").value=categoryId;
+							
+							//商品id更改
+							id = msgJson.material[i].material_id;
+							document.getElementById("materialId").value=id;
+							
+						}
+					}
+				}
+				
+			});
+	});
+	
+	//商品ID进行选择后 该商品的商品名称 【取消，改为商品名称选择】
+	$$('#materialId').change(function(){
+		
+		var  categoryId= document.getElementById("categoryId").value;
+		var  materialId= document.getElementById("materialId").value;
+		var  materialName= document.getElementById("materialName");
+		
+		$$.ajax({
+			type: "POST",
+			url: "/seleteMaterial",
+			data: JSON.stringify({categoryId:categoryId,materialId:materialId})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number != 1 )
+				{
+					alert("搜索异常！该商品id绑定多个商品！请在商品总览功能中进行管理！");
+					name = msgJson.material[0].name;
+					document.getElementById("material_name").value=name;
+				}
+				
+			});
+	});
+	
+	//商品名称进行选择后 更新该商品的商品信息 【商品id 商品单位】
+	$$('#materialName').change(function(){
+		
+		var  categoryId= document.getElementById("categoryId").value;
+		var  materialName= document.getElementById("materialName").value;
+		
+		$$.ajax({
+			type: "POST",
+			url: "/materialNameChange",
+			data: JSON.stringify({categoryId:categoryId,materialName:materialName})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number > 1 )
+				{
+					alert("搜索异常！该商品id绑定多个商品！请在商品总览功能中进行管理！");
+				}
+				else if(material_number == 0 )
+				{
+					alert("搜索异常！未查询到该商品！请在商品总览功能中进行管理！");
+				}
+				else
+				{
+					// 编号更改
+					id = msgJson.material[0].material_id;
+					document.getElementById("materialId").value=id;
+				}
+				
+			});
+	});
+
+	
+</script> 
+
+

@@ -1,0 +1,287 @@
+$def with (allCategory,materials)
+
+
+<div class="container">
+	<div class="jumbotron">
+		<h1> 库存信息 </h1>
+	</div>
+  
+	<div class="container">
+		<div class="row">
+			<div >
+				<div>
+					<h4>请选择所需要出库的类别及商品</h4>
+					<table class="table table-striped" id="filterTable">
+						<thead>
+							<tr>
+								<th>类别编号</th>
+								<th>类别名称</th>
+								<th>商品编号</th>
+								<th>商品名称</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									$if allCategory :
+									<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+								</td>
+								<td><select id="categoryName" >
+									$for value in allCategory:
+										<option>$value.name</option>
+								</select></td>
+								
+								<td><input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=""></td>
+								<td><select id="materialName" length="10px">
+								</select></td>
+								
+								<td><button id="search" type="button" class="btn btn-primary">搜索</button></td>
+							</tr>
+						
+						</tbody>
+					</table>
+				</div>
+				<div id="storageInfo" class="bs-example">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>类别名称</th>
+								<th>商品名称</th>
+								<th>商品数量</th>
+								<th>含税总价</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody id="storageTable">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 模态框（Modal） -->
+	<div class="modal fade" id="materialDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h3 class="modal-title" id="materialTitle">详情</h3>
+				</div>
+				<div class="modal-body">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>类别名称</th>
+								<th>商品名称</th>
+								<th>单位</th>
+								<th>数量</th>
+								<th>单价</th>
+								<th>税率</th>
+								<th>含税金额</th>
+								<th>入库时间</th>
+							</tr>
+						</thead>
+						<tbody id="detailsTable">
+						
+						
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+	
+	
+</div>
+
+
+<script type="text/javascript">
+
+	
+	
+	$$('#search').click(function(){
+		
+		var  categoryId= document.getElementById("categoryId").value;
+		var  materialId= document.getElementById("materialId").value;
+		
+		//获得显示库存信息的表格 并根据条件筛选更新表格
+		var tableStorage = document.getElementById("storageTable");
+		
+		var tableDetails = document.getElementById("detailsTable");
+		
+		$$.ajax({
+			type: "POST",
+			url: "/searchMaterial",
+			data: JSON.stringify({categoryId:categoryId,materialId:materialId})
+			}).done(function( msg ) {
+			
+				/*  json回参  */
+				/*
+				result['msg'] = 'SUCCESS'
+				result['material'] = searchMaterial		//搜索的商品信息 用于模态框显示
+				result['total_price'] = totalPrice		//搜索的商品累计含税价格 用于页面框显示
+				result['material_number'] = searchMaterial_number	//库存中该商品库存>0的条目的数量 不是库存总量 用于模态框遍历
+				result['total_count'] = totalCount		//搜索的商品累计库存 用于页面框显示
+				*/
+			
+			
+				msgJson=JSON.parse(msg);
+				
+				
+				// 清空当前table的所有数据
+				while (tableStorage.hasChildNodes()) {
+				  tableStorage.removeChild(tableStorage.lastChild);
+				}
+				
+				var tr = tableStorage.insertRow(-1);		//在最后增加一行
+				
+				var tdCategoryName = tr.insertCell(-1);	//在最后增加一列
+				tdCategoryName.innerHTML = document.getElementById("categoryName").value;
+				
+				var tdMaterialName = tr.insertCell(-1);
+				tdMaterialName.innerHTML = document.getElementById("materialName").value;
+				
+				var tdCount = tr.insertCell(-1);
+				tdCount.innerHTML = msgJson["total_count"];
+				
+				var tdTaxPrice = tr.insertCell(-1);
+				tdTaxPrice.innerHTML = msgJson["total_price"];
+				
+				var tdButtom = tr.insertCell(-1);
+				//tdButtom.innerHTML = "<input type='submit' onclick='Details(this)'  value='出库'>";
+				tdButtom.innerHTML = "<button class='btn btn-primary' data-toggle='modal' data-target='#materialDetails'>详情</button>"
+				
+				
+				//模态框
+				while (tableDetails.hasChildNodes()) {
+				  tableDetails.removeChild(tableDetails.lastChild);
+				}
+				
+				// 库存中该商品库存>0的条目的数量 不是库存总量
+				material_number = msgJson["material_number"];
+				
+				for( var i = 0 ; i < material_number ; i++ )
+				{
+					var tr = tableDetails.insertRow(-1);		//在最后增加一行
+					
+					var tdCategoryName = tr.insertCell(-1);	//在最后增加一列
+					tdCategoryName.innerHTML = document.getElementById("categoryName").value;
+					
+					var tdMaterialName = tr.insertCell(-1);
+					tdMaterialName.innerHTML = document.getElementById("materialName").value;
+					
+					var tdUnit = tr.insertCell(-1);	
+					tdUnit.innerHTML = msgJson.material[i].unit;
+					
+					var tdCount = tr.insertCell(-1);	
+					tdCount.innerHTML = msgJson.material[i].count;
+					
+					var tdPrice = tr.insertCell(-1);	
+					tdPrice.innerHTML = msgJson.material[i].price;
+					
+					var tdTax = tr.insertCell(-1);	
+					tdTax.innerHTML = msgJson.material[i].tax_rate;
+					
+					var tdTaxPrice = tr.insertCell(-1);	
+					tdTaxPrice.innerHTML = msgJson.material[i].tax_price;
+					
+					var tdInTime = tr.insertCell(-1);	
+					tdInTime.innerHTML = msgJson.material[i].create_time;
+					
+					
+				}
+				
+				
+				
+			});
+	});
+	
+	//类别名称进行选择后 更新该类别下的所有商品信息 【更新商品名称列表，及商品id、单位】
+	$$('#categoryName').change(function(){
+		
+		var  categoryName= document.getElementById("categoryName").value;
+		var  materialName= document.getElementById("materialName");
+		
+		$$.ajax({
+			type: "POST",
+			url: "/categoryNameChange",
+			data: JSON.stringify({category:categoryName})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number == 0 )
+				{
+					alert("搜索失败！该类别下未查询到商品信息！");
+					document.getElementById("materialId").value="";
+					document.getElementById("materialName").value="";
+				}
+				else
+				{				
+					materialName.options.length = 0; // 清除下拉框的所有内容
+					
+					for( var i = 0 ; i < material_number ; i++ )
+					{
+						name=msgJson.material[i].name;
+						materialName.options.add(new Option(name));
+						if(i == 0)
+						{
+							//类别名称更改后 id同步更改
+							categoryId = msgJson.material[i].category_id;
+							document.getElementById("categoryId").value=categoryId;
+							
+							//商品id更改
+							id = msgJson.material[i].material_id;
+							document.getElementById("materialId").value=id;
+							
+						}
+					}
+				}
+				
+			});
+	});
+	
+	//商品名称进行选择后 更新该商品的商品信息 【商品id 商品单位】
+	$$('#materialName').change(function(){
+		
+		var  categoryId= document.getElementById("categoryId").value;
+		var  materialName= document.getElementById("materialName").value;
+		
+		$$.ajax({
+			type: "POST",
+			url: "/materialNameChange",
+			data: JSON.stringify({categoryId:categoryId,materialName:materialName})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number > 1 )
+				{
+					alert("搜索异常！该商品id绑定多个商品！请在商品总览功能中进行管理！");
+				}
+				else if(material_number == 0 )
+				{
+					alert("搜索异常！未查询到该商品！请在商品总览功能中进行管理！");
+				}
+				else
+				{
+					// 编号更改
+					id = msgJson.material[0].material_id;
+					document.getElementById("materialId").value=id;
+				}
+				
+			});
+	});
+	
+	
+</script> 
+
+

@@ -1,0 +1,20 @@
+
+库存信息表 原本是所有库存信息整体输出，现改为增加筛选获得累计值后，再输出一条，增加详情按钮弹出模态框
+<!-- $for material in materials: -->
+							<!-- <tr> -->
+								<!-- <td>$material.id</td> -->
+								<!-- <td>$material.category_id</td> -->
+								<!-- <td>$material.category_name</td> -->
+								<!-- <td>$material.material_id</td> -->
+								<!-- <td>$material.name</td> -->
+								<!-- <td>$material.unit</td> -->
+								<!-- <td>$material.count</td> -->
+								<!-- <td>$material.price</td> -->
+								<!-- <td>$material.tax_rate</td> -->
+								<!-- <td>$material.tax_price</td> -->
+								<!-- <td>$material.create_time</td> -->
+								<!-- <td>$material.update_time</td> -->
+								<!-- <td> -->
+									<!-- <input type="submit" class="btn btn-warning" value="全部出库"/> -->
+								<!-- </td> -->
+							<!-- </tr> -->

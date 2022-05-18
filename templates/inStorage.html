@@ -1,0 +1,308 @@
+$def with (allCategory,materials)
+
+<div class="container">
+	<div class="jumbotron">
+		<h1> 入库模块 </h1>
+	</div>
+  
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				<div id="inStorage" class="bs-example">
+					<table class="table table-striped" >
+						<thead>
+							<tr>
+								<th>类别编号</th>
+								<th>类别名称</th>
+								<th>商品编号</th>
+								<th>商品名称</th>
+								<th>商品单位</th>
+								<th>商品数量</th>
+								<th>未税金额</th>
+								<th>税率</th>
+								<th>含税金额</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<form name="inStorageInfo">
+									<td>
+										$if allCategory :
+											<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+									</td>
+									<td><select id="categoryName" >
+										$for value in allCategory:
+											<option>$value.name</option>
+									</select></td>
+									
+									<td>
+										$if allCategory :
+											<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
+									</td>
+									
+									<td><select id="materialName" length="10px">
+										$for value in materials:
+											<option>$value.name</option>
+									</select></td>
+									
+									<td>
+										$if allCategory :
+											<input id="materialUnit" type="text" size="10" name="material_unit" readonly="readonly" value=$materials[0].unit>
+									</td>
+									
+									<!-- 入库商品数量 限制输入正整数 -->
+									<td><input id="materialCount" class="count" type="text" size="10" name="material_count" value="1" oninput="value=value.replace(/^(0+)|[^\d]+/g,'')"></td>
+									
+									<td><input id="materialPrice" class="untax" size="10" name="price" value="1"></td>
+									<td><input id="materialTax" type="text" size="5" name="tax_rate" value="0.13"></td>
+									<td><input id="materialTaxPrice" class="tax" size="10"></td>
+								</form>
+								<td><button type="button" class="btn btn-primary" onclick="InStorageInfo()">提交</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="static/jquery-1.9.1.min.js"></script>
+<script>
+
+	//输入未税金额 根据数量及税率算出含税金额
+	//正则判断只可输入正数 并保留两位小数
+	$$('body').on("input", ".untax", function () {
+		$$(this).val($$(this).val().match(/\d+(\.\d{0,2})?/) ? $$(this).val().match(/\d+(\.\d{0,2})?/)[0] :  '');
+		var count=inStorageInfo.material_count.value;
+		var price=$$(this).val();
+		var tax_rate=Number(inStorageInfo.tax_rate.value);
+		
+		var tax_price=price * ( 1 + tax_rate ) * count
+		
+		$$(this).parent().parent().find(".tax").val((tax_price).toFixed(2));
+    });
+	
+	//输入数量 根据未我竟然金额及税率算出含税金额
+	$$('body').on("input", ".count", function () {
+		var count=inStorageInfo.price.value;
+		var price=$$(this).val();
+		var tax_rate=Number(inStorageInfo.tax_rate.value);
+		
+		var tax_price=price * ( 1 + tax_rate ) * count
+		
+		$$(this).parent().parent().find(".tax").val((tax_price).toFixed(2));
+    });
+	
+
+</script>
+	
+<script type="text/javascript">
+
+	function InStorageInfo(){
+	
+		var categoryId=document.getElementById("categoryId").value;
+		var categoryName=document.getElementById("categoryName").value;
+        var materialId=document.getElementById("materialId").value;
+		var materialName=document.getElementById("materialName").value;
+        var materialUnit=document.getElementById("materialUnit").value;
+		var materialCount=document.getElementById("materialCount").value;
+        var materialPrice=document.getElementById("materialPrice").value;
+		var materialTax=document.getElementById("materialTax").value;
+        var materialTaxPrice=document.getElementById("materialTaxPrice").value;
+		
+        if(categoryId==""||materialId==""||materialName==""||materialUnit==""||materialCount==""||materialPrice==""||materialTax==""||materialTaxPrice=="")
+		{
+            alert("入库商品信息不全，请检查商品信息！")
+        }
+		else
+		{
+        // AJAX request
+        $$.ajax({
+			type: "POST",
+			url: "/inStorage",
+			data: JSON.stringify({categoryId:categoryId,
+								  categoryName:categoryName,
+								  materialId:materialId,
+								  materialName:materialName,
+								  materialUnit:materialUnit,
+								  materialCount:materialCount,
+								  materialPrice:materialPrice,
+								  materialTax:materialTax,
+								  materialTaxPrice:materialTaxPrice })
+			}).done(function( msg ) {
+				alert(msg);
+				window.location.reload(true);
+			});
+		}
+	}
+	
+	//类别ID进行选择后 更新该类别下的所有商品信息 【取消，改为类别名称选择】
+	$$('#category').change(function(){
+		
+		var  categoryId= document.getElementById("category").value;
+		var  materialId= document.getElementById("material_id");
+		var  materialName= document.getElementById("materialName");
+		var  materialUnit= document.getElementById("materialUnit");
+		
+		
+		$$.ajax({
+			type: "POST",
+			url: "/categoryChange",
+			data: JSON.stringify({category:categoryId})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number == 0 )
+				{
+					alert("搜索失败！该类别下未查询到商品信息！");
+				}
+				else
+				{				
+					materialId.options.length = 0; // 清除second下拉框的所有内容
+					for( var i = 0 ; i < material_number ; i++ )
+					{
+					
+						id=msgJson.material[i].material_id;
+						materialId.options.add(new Option(id));
+						if(i == 0)
+						{
+							categoryName = msgJson.material[i].category_name;
+							document.getElementById("categoryName").value=categoryName;
+							
+							name = msgJson.material[i].name;
+							materialName.value=name;
+							unit = msgJson.material[i].unit;
+							materialUnit.value=unit;
+						}
+					}
+				}
+				
+			});
+	});
+	
+	//类别名称进行选择后 更新该类别下的所有商品信息 【更新商品名称列表，及商品id、单位】
+	$$('#categoryName').change(function(){
+		
+		var  categoryName= document.getElementById("categoryName").value;
+		var  materialId= document.getElementById("materialId");
+		var  materialName= document.getElementById("materialName");
+		var  materialUnit= document.getElementById("materialUnit");
+		
+		$$.ajax({
+			type: "POST",
+			url: "/categoryNameChange",
+			data: JSON.stringify({category:categoryName})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number == 0 )
+				{
+					alert("搜索失败！该类别下未查询到商品信息！");
+				}
+				else
+				{				
+					materialName.options.length = 0; // 清除second下拉框的所有内容
+					
+					for( var i = 0 ; i < material_number ; i++ )
+					{
+						name=msgJson.material[i].name;
+						materialName.options.add(new Option(name));
+						if(i == 0)
+						{
+							//类别名称更改后 id同步更改
+							categoryId = msgJson.material[i].category_id;
+							document.getElementById("categoryId").value=categoryId;
+							
+							//商品id更改
+							id = msgJson.material[i].material_id;
+							materialId.value=id;
+							
+							//商品单位更改
+							unit = msgJson.material[i].unit;
+							materialUnit.value=unit;
+							
+							//价格及数量复位
+							document.getElementById("materialCount").value=1;
+							document.getElementById("materialPrice").value=1;
+							document.getElementById("materialTaxPrice").value=1.13;
+						}
+					}
+				}
+				
+			});
+	});
+	
+	//商品ID进行选择后 更新该商品的商品信息 【取消，改为商品名称选择】
+	$$('#materialId').change(function(){
+		
+		var  categoryId= document.getElementById("categoryId").value;
+		var  materialId= document.getElementById("materialId").value;
+		var  materialName= document.getElementById("materialName");
+		var  materialUnit= document.getElementById("materialUnit");
+		
+		$$.ajax({
+			type: "POST",
+			url: "/materialChange",
+			data: JSON.stringify({categoryId:categoryId,materialId:materialId})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number != 1 )
+				{
+					alert("搜索异常！该商品id绑定多个商品！请在商品总览功能中进行管理！");
+				}
+				name = msgJson.material[0].name;
+				materialName.value=name;
+				unit = msgJson.material[0].unit;
+				materialUnit.value=unit;
+				document.getElementById("materialCount").value=1;
+				document.getElementById("materialPrice").value=1;
+				document.getElementById("materialTaxPrice").value=1.13;
+				
+			});
+	});
+	
+	//商品名称进行选择后 更新该商品的商品信息 【商品id 商品单位】
+	$$('#materialName').change(function(){
+		
+		var  categoryId= document.getElementById("categoryId").value;
+		var  materialName= document.getElementById("materialName").value;
+		
+		$$.ajax({
+			type: "POST",
+			url: "/materialNameChange",
+			data: JSON.stringify({categoryId:categoryId,materialName:materialName})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				material_number = msgJson["material_number"];
+				if(material_number != 1 )
+				{
+					alert("搜索异常！该商品id绑定多个商品！请在商品总览功能中进行管理！");
+				}
+				else
+				{
+					// 编号更改
+					id = msgJson.material[0].material_id;
+					document.getElementById("materialId").value=id;
+					
+					//单位更改
+					unit = msgJson.material[0].unit;
+					document.getElementById("materialUnit").value=unit;
+					
+					//价格及数量复位
+					document.getElementById("materialCount").value=1;
+					document.getElementById("materialPrice").value=1;
+					document.getElementById("materialTaxPrice").value=1.13;
+				}
+				
+			});
+	});
+
+</script> 
+
+
