@@ -15,7 +15,7 @@ $def with (allCategory,materials,projects)
 					<div class="row">
 						<div class="col-sm-4" >
 							<h4>请选择所申请的项目名称</h4>
-							<select id="projectName" style="width:300px;height:90px;border:3px #cccccc dashed;">
+							<select id="projectName" style="width:300px;height:90px;border:3px #cccccc dashed; font-size:20px">
 								$for value in projects:
 									<option>$value.name</option>
 							</select>
@@ -167,6 +167,12 @@ $def with (allCategory,materials,projects)
 		
 		var count = $$(val).parent().parent().find(".outCount").val();
 		
+		if(Number(count)+'' !==NaN+'' ){
+
+			alert("您输入的出库数量非整型数字，请重新输入！")
+			return;
+		}
+		
 		var project=document.getElementById("projectName").value;
 		
 		$$.ajax({
@@ -203,7 +209,7 @@ $def with (allCategory,materials,projects)
 				msgJson=JSON.parse(msg);
 				
 				material_number = msgJson["material_number"];
-				alert(material_number);
+				//alert(material_number);
 				
 				//var tr = document.createElement("tr");		//创建tr元素
 				for( var i = 0 ; i < material_number ; i++ )
@@ -237,9 +243,9 @@ $def with (allCategory,materials,projects)
 					tdTaxPrice.innerHTML = msgJson.material[i].tax_price;
 					
 					value = Number(msgJson.material[i].count);
-					alert(value);
+					//alert(value);
 					var tdOutCount = tr.insertCell(-1);	
-					tdOutCount.innerHTML = "<input type='number' min=1 step=1 max="+value+" class='outCount' id='' value='1' >";
+					tdOutCount.innerHTML = "<input type='number' min=1 step=1 max="+value+" class='outCount' value='1' oninput='if(value>"+value+") value="+value+";'>";
 					
 					var tdButtom = tr.insertCell(-1);
 					tdButtom.innerHTML = "<input type='submit' class='outButtom' onclick='OutStorage(this)'  value='出库'>";
