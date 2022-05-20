@@ -17,8 +17,7 @@ $def with (projects)
 								<th>编号</th>
 								<th>项目编号</th>
 								<th>项目名称</th>
-								<th>所申领产品ID</th>
-								<th>所申领产品名称</th>
+								<th>所申领商品</th>
 								<th>操作</th>
 							</tr>
 						</thead>
@@ -26,21 +25,24 @@ $def with (projects)
 							$for project in projects:
 								<tr>
 									<td>$project.id</td>
-									<td>$project.project_id</td>
-									<td>$project.name</td>
-									<td>$project.material_id</td>
-									<td></td>
+									<td class="projectId">$project.project_id</td>
+									<td class="projectName">$project.name</td>
+									<td class="materialId">$project.material_id</td>
 									<td>
-										<form action="/deleteProject/$project.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
-											<input type="submit" class="btn btn-warning" value="删除"/>
-										</form>
+										$if project.material_id :
+											<button class="btn btn-success" data-toggle="modal" data-toggle='modal' data-target='#projectDetails' onclick="getDetails(this)" data-target="#projectDetails">详情</button>
+											
+										$else :
+											<form action="/deleteProject/$project.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
+												<input type="submit" class="btn btn-warning" value="删除"/>
+											</form>
+
 									</td>
 								</tr>
 							<tr bgcolor="#F5F5F5">
 								<td style="font-weight: bold;">新增项目</td>
 								<td><input id="project_number" type="text"></td>
 								<td><input id="project_name" type="text"></td>
-								<td>/</td>
 								<td>/</td>
 								<td><button type="button" class="btn btn-primary " onclick="NewProject()">提交</button></td>
 							</tr>
@@ -62,6 +64,42 @@ $def with (projects)
 			<!-- </div> -->
 		</div>
 	</div>
+
+	<!-- 项目详情模态框（Modal） -->
+	<div class="modal fade" id="projectDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h3 class="modal-title" id="materialTitle">详情</h3>
+				</div>
+				<div class="modal-body">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>项目名称</th>
+								<th>商品编号</th>
+								<th>商品名称</th>
+								<th>出库数量</th>
+								<th>出库时间</th>
+							</tr>
+						</thead>
+						<tbody id="detailsTable">
+						
+						
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+
 </div>
 
 
@@ -83,6 +121,49 @@ $def with (projects)
 				window.location.reload(true);
 			});
 		}
+	}
+
+	function getDetails(val){
+		
+		var id=$$(val).parent().parent().find(".projectId").text();
+		var name=$$(val).parent().parent().find(".projectName").text();
+		var materialId=$$(val).parent().parent().find(".materialId").text();
+		
+		var tableDetails = document.getElementById("detailsTable");
+		var info = materialId.split(';');
+
+		//模态框
+		while (tableDetails.hasChildNodes()) {
+		  tableDetails.removeChild(tableDetails.lastChild);
+		}
+		
+		var number = info.length;
+
+		for(var i = 0 ; i < number - 1 ; i++ )
+		{
+			var tr = tableDetails.insertRow(-1);
+				
+			var material = info[i].split(' ');
+
+			//var material = materialId.split(' ');
+			
+			var tdProjectName = tr.insertCell(-1);
+			tdProjectName.innerHTML = name;
+				
+			var tdMaterialId = tr.insertCell(-1);
+			tdMaterialId.innerHTML = material[0];
+			
+			var tdMaterialName = tr.insertCell(-1);
+			tdMaterialName.innerHTML = material[1];
+			
+			var tdCount = tr.insertCell(-1);	
+			tdCount.innerHTML = material[2];
+			
+			var tdInTime = tr.insertCell(-1);	
+			tdInTime.innerHTML = material[3];
+
+		}
+	
 	}
 
 </script> 
