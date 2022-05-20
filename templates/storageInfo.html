@@ -6,57 +6,63 @@ $def with (allCategory,materials)
 		<h1> 库存信息 </h1>
 	</div>
   
-	<div class="container">
-		<div class="row">
-			<div >
-				<div>
-					<h4>请选择所需要出库的类别及商品</h4>
-					<table class="table table-striped" id="filterTable">
-						<thead>
-							<tr>
-								<th>类别编号</th>
-								<th>类别名称</th>
-								<th>商品编号</th>
-								<th>商品名称</th>
-								<th>操作</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>
-									$if allCategory :
-									<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
-								</td>
-								<td><select id="categoryName" >
-									$for value in allCategory:
-										<option>$value.name</option>
-								</select></td>
-								
-								<td><input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=""></td>
-								<td><select id="materialName" length="10px">
-								</select></td>
-								
-								<td><button id="search" type="button" class="btn btn-primary">搜索</button></td>
-							</tr>
-						
-						</tbody>
-					</table>
-				</div>
-				<div id="storageInfo" class="bs-example">
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								<th>类别名称</th>
-								<th>商品名称</th>
-								<th>商品数量</th>
-								<th>含税总价</th>
-								<th>操作</th>
-							</tr>
-						</thead>
-						<tbody id="storageTable">
-						</tbody>
-					</table>
-				</div>
+	<div class="row">
+		<div >
+			<div>
+				<h4>请选择所需要出库的类别及商品</h4>
+				<table class="table table-striped" id="filterTable">
+					<thead>
+						<tr>
+							<th>类别编号</th>
+							<th>类别名称</th>
+							<th>商品编号</th>
+							<th>商品名称</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								$if allCategory :
+								<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+							</td>
+							<td><select id="categoryName" >
+								$for value in allCategory:
+									<option>$value.name</option>
+							</select></td>
+							
+							<td>
+								$if materials :
+									<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
+							</td>
+							<td><select id="materialName" length="10px">
+								$for value in materials:
+									<option>$value.name</option>
+							</select></td>
+							<!-- <td><input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=""></td> -->
+							<!-- <td><select id="materialName" value=""> -->
+							<!-- </select></td> -->
+							
+							<td><button id="search" type="button" class="btn btn-primary">搜索</button></td>
+						</tr>
+					
+					</tbody>
+				</table>
+			</div>
+			<div id="storageInfo" class="bs-example">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>类别名称</th>
+							<th>商品名称</th>
+							<th>商品数量</th>
+							<th>含税总价</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="storageTable">
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
