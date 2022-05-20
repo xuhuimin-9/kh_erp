@@ -4,69 +4,67 @@ $def with (allCategory,materials)
 	<div class="jumbotron">
 		<h1> 入库模块 </h1>
 	</div>
-  
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-12">
-				<div id="inStorage" class="bs-example">
-					<table class="table table-striped" >
-						<thead>
-							<tr>
-								<th>类别编号</th>
-								<th>类别名称</th>
-								<th>商品编号</th>
-								<th>商品名称</th>
-								<th>商品单位</th>
-								<th>商品数量</th>
-								<th>未税单价</th>
-								<th>未税总价</th>
-								<th>税率</th>
-								<th>含税单价</th>
-								<th>含税总价</th>
-								<th>操作</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<form name="inStorageInfo">
-									<td>
-										$if allCategory :
-											<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
-									</td>
-									<td><select id="categoryName" >
-										$for value in allCategory:
-											<option>$value.name</option>
-									</select></td>
-									
-									<td>
-										$if allCategory :
-											<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
-									</td>
-									
-									<td><select id="materialName" length="10px">
-										$for value in materials:
-											<option>$value.name</option>
-									</select></td>
-									
-									<td>
-										$if allCategory :
-											<input id="materialUnit" type="text" size="10" name="material_unit" readonly="readonly" value=$materials[0].unit>
-									</td>
-									
-									<!-- 入库商品数量 限制输入正整数 -->
-									<td><input id="materialCount" class="count" type="text" size="10" name="material_count" value="1" oninput="value=value.replace(/^(0+)|[^\d]+/g,'')"></td>
-									
-									<td><input id="materialPrice" class="untax" size="10" name="price" value="1"></td>
-									<td><input id="materialTotalPrice" class="totalPrice" size="10" name="totalPrice" readonly="readonly" value="1"></td>
-									<td><input id="materialTax" type="text" size="5" name="tax_rate" value="0.13"></td>
-									<td><input id="materialTaxPrice" class="tax" size="10" readonly="readonly" value="1.13"></td>
-									<td><input id="materialTotalTaxPrice" class="totalTax" size="10" readonly="readonly" value="1.13"></td>
-								</form>
-								<td><button type="button" class="btn btn-primary" onclick="InStorageInfo()">提交</button></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+ 
+	<div class="row">
+		<div class="col-sm-12">
+			<div id="inStorage" class="bs-example">
+				<table class="table table-striped" >
+					<thead>
+						<tr>
+							<th>类别编号</th>
+							<th>类别名称</th>
+							<th>商品编号</th>
+							<th>商品名称</th>
+							<th>商品单位</th>
+							<th>商品数量</th>
+							<th>未税单价</th>
+							<th>未税总价</th>
+							<th>税率</th>
+							<th>含税单价</th>
+							<th>含税总价</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<form name="inStorageInfo">
+								<td>
+									$if allCategory :
+										<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+								</td>
+								<td><select id="categoryName" >
+									$for value in allCategory:
+										<option>$value.name</option>
+								</select></td>
+								
+								<td>
+									$if allCategory :
+										<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
+								</td>
+								
+								<td><select id="materialName" length="10px">
+									$for value in materials:
+										<option>$value.name</option>
+								</select></td>
+								
+								<td>
+									$if allCategory :
+										<input id="materialUnit" type="text" size="5" name="material_unit" readonly="readonly" value=$materials[0].unit>
+								</td>
+								
+								<!-- 入库商品数量 限制输入正整数 -->
+								<td><input id="materialCount" class="count" type="text" size="5" name="material_count" value="1" oninput="value=value.replace(/^(0+)|[^\d]+/g,'')"></td>
+								
+								<td><input id="materialPrice" class="untax" size="4" name="price" value="1"></td>
+								<td><input id="materialTotalPrice" class="totalPrice" size="5" name="totalPrice" readonly="readonly" value="1"></td>
+								<td><input id="materialTax" class="taxRate" size="4" name="tax_rate" value="0.13"></td>
+								<td><input id="materialTaxPrice" class="tax" size="5" readonly="readonly" value="1.13"></td>
+								<td><input id="materialTotalTaxPrice" class="totalTax" size="5" readonly="readonly" value="1.13"></td>
+							</form>
+							<td><button type="button" class="btn btn-primary" onclick="InStorageInfo()">提交</button></td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
@@ -97,8 +95,8 @@ $def with (allCategory,materials)
 	
 	//输入数量 根据未税额及税率算出含税金额
 	$$('body').on("input", ".count", function () {
-		var count=inStorageInfo.price.value;
-		var price=$$(this).val();
+		var price=inStorageInfo.price.value;
+		var count=$$(this).val();
 		var tax_rate=Number(inStorageInfo.tax_rate.value);
 		
 		//未税总价
@@ -115,10 +113,10 @@ $def with (allCategory,materials)
     });
 	
 	//输入税率 根据未锐金额及税率算出 含税单价 含税总价
-	$$('body').on("input", ".tax", function () {
-		var count=inStorageInfo.price.value;
-		var price=$$(this).val();
-		var tax_rate=Number(inStorageInfo.tax_rate.value);
+	$$('body').on("input", ".taxRate", function () {
+		var price=inStorageInfo.price.value;
+		var count=inStorageInfo.material_count.value;
+		var tax_rate=Number($$(this).val());
 		
 		//含税单价
 		var tax_price=price * ( 1 + tax_rate )
@@ -144,7 +142,7 @@ $def with (allCategory,materials)
 		var materialCount=document.getElementById("materialCount").value;
         var materialPrice=document.getElementById("materialPrice").value;
 		var materialTax=document.getElementById("materialTax").value;
-        var materialTaxPrice=document.getElementById("materialTaxPrice").value;
+        var materialTaxPrice=document.getElementById("materialTotalTaxPrice").value;
 		
         if(categoryId==""||materialId==""||materialName==""||materialUnit==""||materialCount==""||materialPrice==""||materialTax==""||materialTaxPrice=="")
 		{
@@ -173,7 +171,7 @@ $def with (allCategory,materials)
 	}
 	
 	//类别ID进行选择后 更新该类别下的所有商品信息 【取消，改为类别名称选择】
-	$$('#category').change(function(){
+	/*$$('#category').change(function(){
 		
 		var  categoryId= document.getElementById("category").value;
 		var  materialId= document.getElementById("material_id");
@@ -215,7 +213,7 @@ $def with (allCategory,materials)
 				}
 				
 			});
-	});
+	});*/
 	
 	//类别名称进行选择后 更新该类别下的所有商品信息 【更新商品名称列表，及商品id、单位】
 	$$('#categoryName').change(function(){
@@ -230,17 +228,38 @@ $def with (allCategory,materials)
 			url: "/categoryNameChange",
 			data: JSON.stringify({category:categoryName})
 			}).done(function( msg ) {
+
+				/*  json回参  */
+				/*
+				result['msg'] = 'SUCCESS'
+				result['material'] = material		//搜索的商品信息
+				result['material_number'] = searchMaterial_number	//库存中该商品库存>0的条目的数量 不是库存总量 
+				result['category_id'] = category_id	//类别id 更新显示id号
+				*/
+
 				msgJson=JSON.parse(msg);
 				
+				//类别名称更改后 id同步更改
+				categoryId = msgJson["category_id"];
+				document.getElementById("categoryId").value=categoryId;
+
 				material_number = msgJson["material_number"];
+
+				materialName.options.length = 0; // 清除second下拉框的所有内容
+
 				if(material_number == 0 )
 				{
 					alert("搜索失败！该类别下未查询到商品信息！");
+					materialId.value="";
+					materialUnit.value="";
+					document.getElementById("materialCount").value="";
+					document.getElementById("materialPrice").value="";
+					document.getElementById("materialTotalPrice").value="";
+					document.getElementById("materialTaxPrice").value="";
+					document.getElementById("materialTotalTaxPrice").value="";
 				}
 				else
-				{				
-					materialName.options.length = 0; // 清除second下拉框的所有内容
-					
+				{	
 					for( var i = 0 ; i < material_number ; i++ )
 					{
 						name=msgJson.material[i].name;
@@ -248,8 +267,8 @@ $def with (allCategory,materials)
 						if(i == 0)
 						{
 							//类别名称更改后 id同步更改
-							categoryId = msgJson.material[i].category_id;
-							document.getElementById("categoryId").value=categoryId;
+							//categoryId = msgJson.material[i].category_id;
+							//document.getElementById("categoryId").value=categoryId;
 							
 							//商品id更改
 							id = msgJson.material[i].material_id;
@@ -271,7 +290,7 @@ $def with (allCategory,materials)
 	});
 	
 	//商品ID进行选择后 更新该商品的商品信息 【取消，改为商品名称选择】
-	$$('#materialId').change(function(){
+	/*$$('#materialId').change(function(){
 		
 		var  categoryId= document.getElementById("categoryId").value;
 		var  materialId= document.getElementById("materialId").value;
@@ -299,7 +318,7 @@ $def with (allCategory,materials)
 				document.getElementById("materialTaxPrice").value=1.13;
 				
 			});
-	});
+	});*/
 	
 	//商品名称进行选择后 更新该商品的商品信息 【商品id 商品单位】
 	$$('#materialName').change(function(){
