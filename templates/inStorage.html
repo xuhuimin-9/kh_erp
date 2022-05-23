@@ -58,7 +58,7 @@ $def with (allCategory,materials)
 								<td><input id="materialPrice" class="untax" size="4" name="price" value="1"></td>
 								<td><input id="materialTotalPrice" class="totalPrice" size="5" name="totalPrice" readonly="readonly" value="1"></td>
 								<td><input id="materialTax" class="taxRate" size="4" name="tax_rate" value="0.13"></td>
-								<td><input id="materialTaxPrice" class="tax" size="5" readonly="readonly" value="1.13"></td>
+								<td><input id="materialTaxPrice" class="tax" size="5" value="1.13"></td>
 								<td><input id="materialTotalTaxPrice" class="totalTax" size="5" readonly="readonly" value="1.13"></td>
 							</form>
 							<td><button type="button" class="btn btn-primary" onclick="InStorageInfo()">提交</button></td>
@@ -127,6 +127,25 @@ $def with (allCategory,materials)
 		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(2));
     });
 	
+	//输入含税单价 根据含税单价及税率算出 未税税单价 未税总价 含税总价
+	$$('body').on("input", ".tax", function () {
+		var count=inStorageInfo.material_count.value;
+		var tax_rate=Number(inStorageInfo.tax_rate.value);
+		var tax_price=Number($$(this).val());
+
+		//未税单价
+		var untax_price=tax_price / (1 + tax_rate);
+		$$(this).parent().parent().find(".untax").val((untax_price).toFixed(2));
+
+		//未税总价
+		var total_untax_price=untax_price * count;
+		$$(this).parent().parent().find(".totalPrice").val((total_untax_price).toFixed(2));
+
+		//含税总价
+		var total_tax_price=tax_price * count
+		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(2));
+    });
+
 
 </script>
 	
