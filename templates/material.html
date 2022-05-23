@@ -43,7 +43,7 @@ $def with (category,materials)
 									$for value in category:
 										<option>$value.name</option>
 								</select></td>
-								<td><input id="material_id" type="text" oninput="value=value.replace(/^(0+)|[^\d]+/g,'')"></td>
+								<td><input id="material_id" type="text"></td>
 								<td><input id="material_name" type="text"></td>
 								<td><input id="material_unit" type="text"></td>
 								<td><button type="button" class="btn btn-primary " onclick="NewMaterial()">提交</button></td>
@@ -78,28 +78,23 @@ $def with (category,materials)
         var material_id=document.getElementById("material_id").value;
 		var material_name=document.getElementById("material_name").value;
         var material_unit=document.getElementById("material_unit").value;
-		if (Number(material_id)>2147483647)
-		{
-			 alert("商品编号已超范围！请重新填写商品编号！")
-		}
-		else
-		{
-			if( type_name == "" || material_id == "" || material_name == "" || material_unit == "" ){
-				alert("请先输入商品信息")
-			}else{
-			// AJAX request
-			$$.ajax({
-				type: "POST",
-				url: "/material",
-				data: 'category_name='+type_name+'&material_id='+material_id+'&name='+material_name+'&unit='+material_unit
-				}).done(function( msg ) {
-					alert(msg);
-					window.location.reload(true);
-				});
-			}
+		
+		if( type_name == "" || material_id == "" || material_name == "" || material_unit == "" ){
+			alert("请先输入商品信息")
+		}else{
+		// AJAX request
+		$$.ajax({
+			type: "POST",
+			url: "/material",
+			data: 'category_name='+type_name+'&material_id='+material_id+'&name='+material_name+'&unit='+material_unit
+			}).done(function( msg ) {
+				alert(msg);
+				window.location.reload(true);
+			});
 		}
 	}
 	
+	// 5.20已取消根据类别id切换显示类别名称，直接选择类别名称 后台会根据类别名称找到该id
 	$$('#type_id').change(function(){
 		
 		var  categoryId= document.getElementById("type_id").value;

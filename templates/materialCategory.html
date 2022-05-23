@@ -42,18 +42,6 @@ $def with (category)
 					</table>
 				</div>
 			</div>
-			<!-- <div class="col-sm-4"> -->
-				<!-- <div id="new_category" class="bs-example">	 -->
-					<!-- 新增类别<br> -->
-					<!-- <form> -->
-						<!-- <center>类别名称：<input type="text" id="category_name"><br><br><br> -->
-						<!-- <center>类别编号：<input type="text" id="category_no"><br><br><br> -->
-						<!-- <div id="newCategory" class="bs-example"> -->
-							<!-- <button type="button" class="btn btn-primary " onclick="NewCategory()">提交</button> -->
-						<!-- </div> -->
-					<!-- </form> -->
-				<!-- </div> -->
-			<!-- </div> -->
 		</div>
 	</div>
 </div>
@@ -65,25 +53,18 @@ $def with (category)
 		var name=document.getElementById("category_name").value;
         var category_id=document.getElementById("category_no").value;
 		
-		if (Number(category_id)>2147483647)
-		{
-			 alert("类别编号已超范围！请重新填写类别编号！")
-		}
-		else
-		{
-			if( name == "" || category_id == ""){
-				alert("请先输入类别信息")
-			}else{
-			// AJAX request
-			$$.ajax({
-				type: "POST",
-				url: "/materialCategory",
-				data: 'name='+name+'&number='+category_id
-				}).done(function( msg ) {
-					alert(msg);
-					window.location.reload(true);
-				});
-			}
+		if( name == "" || category_id == ""){
+			alert("请先输入类别信息")
+		}else{
+		// AJAX request
+		$$.ajax({
+			type: "POST",
+			url: "/materialCategory",
+			data: 'name='+name+'&number='+category_id
+			}).done(function( msg ) {
+				alert(msg);
+				window.location.reload(true);
+			});
 		}
 	}
 	

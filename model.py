@@ -10,11 +10,11 @@ def select_table_from_sql(table_name):
 # 创建新商品类别【名称 编号】
 def insert_info_to_material_category(name, number):
 
-    table_name = "material_category";
+    table_name = "material_category"
     # 判断表中是否存在该条编号
     status = db.select(table_name, where="serial_no=$number", vars=locals())
     if status:
-        return -1       # 编号已存在
+        return -1       # 类别编号已存在
 
     # 判断表中是否存在该类别名称
     status = db.select(table_name, where="name=$name", vars=locals())
@@ -39,18 +39,21 @@ def insert_info_to_kh_material(category_id,category_name,material_id,name, unit)
     category = db.select(
         table_name, where="serial_no=$category_id AND name=$category_name", vars=locals()
     )
+
     # 如果存在该条商品，则获取该条商品的状态【0：库存中未入库；1：已入库】
     if category:
-        category_status = category[0]['status'];
+        category_status = category[0]['status']
     else:
         return -1  # material_category表中未找到该商品信息
+
     if (not category_status):
         status = db.update(table_name, where="serial_no=$category_id AND name=$category_name",
                            vars=locals(), status=1)
         if (not status):
             return -2  # 更新material_category表中状态异常
 
-    table_name = "kh_material";
+
+    table_name = "kh_material"
 
     '''     2.检查商品信息        '''
     # 判断表中是否存在该条编号
@@ -65,14 +68,14 @@ def insert_info_to_kh_material(category_id,category_name,material_id,name, unit)
 
 
     '''     3.存入商品表       '''
-
     status = db.insert(
-        table_name, category_id = category_id, category_name = category_name ,material_id = material_id ,name = name , unit = unit
+        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit
     )
     if (not status):
         return 0  # 更新kh_material表中状态异常
 
     return 1 # 正常存入
+
 
 # 创建新项目
 def insert_info_to_kh_project(project_id,name):
@@ -82,6 +85,7 @@ def insert_info_to_kh_project(project_id,name):
         table_name, project_id = project_id, name = name
     )
     return status
+
 
 # 检查项目信息
 def check_project_info(id,name):

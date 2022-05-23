@@ -66,14 +66,10 @@ class MaterialCategory:
     def GET(self):
         material_category = model.select_table_from_sql("material_category")
         time.sleep(0.5)
-        return render.MaterialCategory(material_category)
+        return render.MaterialCategory(list(material_category))
 
     def POST(self):
         new_material_category = web.input()
-        print(new_material_category)
-        print(new_material_category['name'])
-        print(new_material_category['number'])
-
         name = new_material_category['name']
         category_id = new_material_category['number']
 
@@ -102,18 +98,13 @@ class Material:
 
     def POST(self):
         new_material = web.input()
-        print(new_material)
         category_name = new_material['category_name']
         category_id = db.select("material_category", what='serial_no' , where="name=$category_name", vars=locals())[0]['serial_no']
         material_id = new_material['material_id']
-        material_id = int(float(material_id))
         name = new_material['name']
         unit = new_material['unit']
 
         status=model.insert_info_to_kh_material(category_id, category_name,material_id, name, unit)
-
-        # 同步存到库存信息中
-        #storage.insert_info_to_material_io_storage_info(category_id, material_id, name, unit)
 
         result = {
             0: "存入异常，请联系后台人员！",
@@ -168,19 +159,12 @@ class DeleteMaterial:
 # 删除类别信息
 class DeleteCategory:
     def POST(self, id):
-        # 判断该类别是否已被商品绑定
-        # status = db.select("kh_material", where="category_id=$id", vars=locals())
-        # if(not status):
-        #    return json.dumps("提示：该类别已绑定其它商品，请勿删除！", ensure_ascii=False)
-
         model.delete_info_from_table("material_category", id)
         raise web.seeother("/materialCategory")
 
 # 删除项目信息
 class DeleteProject:
     def GET(self):
-        """ all project show """
-        #projects = model.select_table_from_sql("kh_project")
         return render.index(0)
     def POST(self, id):
         model.delete_info_from_table("kh_project", id)
