@@ -3,91 +3,90 @@ $def with (allCategory,materials,projects)
 
 <div class="container">
 	<div class="jumbotron">
-		<h1> 出库模块 </h1>
+		<img src="https://cdn-icons-png.flaticon.com/512/1675/1675276.png" width="80px"  alt="出库信息"><h1  style="display : inline;vertical-align: middle">		出库信息</h1>
+
 	</div>
   
-	<div class="container">
-		<div class="row">
-			<div>
-				<div id="outStorage" class="bs-example">
-					
-					
-					<div class="row">
-						<div class="col-sm-4" >
-							<h4>请选择所申请的项目名称</h4>
-							<select id="projectName" style="width:300px;height:90px;border:3px #cccccc dashed; font-size:20px">
-								$for value in projects:
-									<option>$value.name</option>
-							</select>
-						</div>
-						
-						<div class="col-sm-8">
-							<h4>请选择所需要出库的类别及商品</h4>
-							<table class="table table-striped" id="filterTable">
-								<thead>
-									<tr>
-										<th>类别编号</th>
-										<th>类别名称</th>
-										<th>商品编号</th>
-										<th>商品名称</th>
-										<th>操作</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>
-											$if allCategory :
-												<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
-										</td>
-										
-										<td><select id="categoryName" >
-											$for value in allCategory:
-												<option>$value.name</option>
-										</select></td>
-										
-										<td>
-											$if allCategory :
-												<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
-										</td>
-										<td><select id="materialName" length="10px">
-											$for value in materials:
-												<option>$value.name</option>
-										</select></td>
-										
-										<td><button id="filter" type="button" class="btn btn-primary">筛选</button></td>
-									</tr>
-								
-								</tbody>
-							</table>
-						</div>
+	<div class="row">
+		<div>
+			<div id="outStorage" class="bs-example">
+				
+				
+				<div class="row">
+					<div class="col-sm-4" >
+						<h4>请选择所申请的项目名称</h4>
+						<select id="projectName" style="width:300px;height:90px;border:3px #cccccc dashed; font-size:20px">
+							$for value in projects:
+								<option>$value.name</option>
+						</select>
 					</div>
-						
 					
-					<br><br><br>
-					
-					
-					<table class="table table-striped" >
-						<thead>
-							<tr>
-								<th>编号</th>
-								<th>入库时间</th>
-								<th>商品名称</th>
-								<th>商品单位</th>
-								<th>库存数量</th>
-								<th>未税金额</th>
-								<th>税率</th>
-								<th>含税金额</th>
-								<th>出库数量</th>
-								<th>操作</th>
-							</tr>
-						</thead>
-						<tbody  id="storageTable">
+					<div class="col-sm-8">
+						<h4>请选择所需要出库的类别及商品</h4>
+						<table class="table table-striped" id="filterTable">
+							<thead>
+								<tr>
+									<th>类别编号</th>
+									<th>类别名称</th>
+									<th>商品编号</th>
+									<th>商品名称</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+										$if allCategory :
+											<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+									</td>
+									
+									<td><select id="categoryName" >
+										$for value in allCategory:
+											<option>$value.name</option>
+									</select></td>
+									
+									<td>
+										$if materials :
+											<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
+									</td>
+									<td><select id="materialName" length="10px">
+										$for value in materials:
+											<option>$value.name</option>
+									</select></td>
+									
+									<td><button id="filter" type="button" class="btn btn-primary">筛选</button></td>
+								</tr>
 							
-							
-							
-						</tbody>
-					</table>
+							</tbody>
+						</table>
+					</div>
 				</div>
+					
+				
+				<br><br><br>
+				
+				
+				<table class="table table-striped" >
+					<thead>
+						<tr>
+							<th>编号</th>
+							<th>入库时间</th>
+							<th>商品名称</th>
+							<th>商品单位</th>
+							<th>库存数量</th>
+							<th>未税金额</th>
+							<th>税率</th>
+							<th>含税金额</th>
+							<th>出库数量</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody  id="storageTable">
+						
+						
+						
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
@@ -117,7 +116,6 @@ $def with (allCategory,materials,projects)
 	
     });*/
 	
-		
 	
 	$$('body').on("input", ".untax", function () {
 		
@@ -125,7 +123,7 @@ $def with (allCategory,materials,projects)
 		//test1();
 		test2(value);
 		
-    })
+    });
 	
 	
 
@@ -167,12 +165,22 @@ $def with (allCategory,materials,projects)
 		
 		var count = $$(val).parent().parent().find(".outCount").val();
 		
-		if(Number(count)+'' !==NaN+'' ){
-
-			alert("您输入的出库数量非整型数字，请重新输入！")
-			return;
-		}
 		
+		/*if(isNaN(count)){
+
+			alert("您输入的出库数量非整型数字，请重新输入！");
+			return;
+		}*/
+		for (let i = 0; i < count.length; i++) 
+		{	
+			var status = isNaN(count[i])
+			if(status)
+			{
+				alert("您输入的出库数量非整型数字，请重新输入！");
+				return ;
+			}
+		}
+
 		var project=document.getElementById("projectName").value;
 		
 		$$.ajax({
@@ -260,7 +268,7 @@ $def with (allCategory,materials,projects)
 	});
 	
 	//类别ID进行选择后 更新该类别下的所有商品信息【取消，改为类别名称选择】
-	$$('#categoryId').change(function(){
+	/*$$('#categoryId').change(function(){
 		
 		var  categoryId= document.getElementById("categoryId").value;
 		var  materialName= document.getElementById("categoryName");
@@ -302,7 +310,7 @@ $def with (allCategory,materials,projects)
 				}
 				
 			});
-	});
+	});*/
 	
 	//类别名称进行选择后 更新该类别下的所有商品信息 【更新商品名称列表，及商品id、单位】
 	$$('#categoryName').change(function(){
@@ -350,7 +358,7 @@ $def with (allCategory,materials,projects)
 	});
 	
 	//商品ID进行选择后 该商品的商品名称 【取消，改为商品名称选择】
-	$$('#materialId').change(function(){
+	/*$$('#materialId').change(function(){
 		
 		var  categoryId= document.getElementById("categoryId").value;
 		var  materialId= document.getElementById("materialId").value;
@@ -372,7 +380,7 @@ $def with (allCategory,materials,projects)
 				}
 				
 			});
-	});
+	});*/
 	
 	//商品名称进行选择后 更新该商品的商品信息 【商品id 商品单位】
 	$$('#materialName').change(function(){

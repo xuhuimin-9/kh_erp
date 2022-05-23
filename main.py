@@ -10,6 +10,7 @@ import time
 import model
 import storage
 import json
+import pymysql
 
 db = web.database(dbn="mysql", db="kh_erp", host="localhost" , user="root" , password="123456")
 
@@ -72,9 +73,24 @@ class MaterialCategory:
         print(new_material_category)
         print(new_material_category['name'])
         print(new_material_category['number'])
+
         name = new_material_category['name']
-        number = new_material_category['number']
-        model.insert_info_to_material_category(name, number)
+        category_id = new_material_category['number']
+
+        status = model.insert_info_to_material_category(name, category_id)
+
+        result = {
+            0: "存入异常，请联系后台人员！",
+            1: "已存入！",
+            -1: "类别编号重复",
+            -2: "类别名称重复"
+        }
+
+        value = result.get(status, None)
+
+        return json.dumps("提示：" + value,ensure_ascii=False)
+
+
 
 # 获取商品信息 和 新建商品信息
 class Material:
@@ -90,15 +106,28 @@ class Material:
         category_name = new_material['category_name']
         category_id = db.select("material_category", what='serial_no' , where="name=$category_name", vars=locals())[0]['serial_no']
         material_id = new_material['material_id']
-        print(type(material_id))
         material_id = int(float(material_id))
-        material_id
         name = new_material['name']
         unit = new_material['unit']
-        model.insert_info_to_kh_material(category_id, category_name,material_id, name, unit)
+
+        status=model.insert_info_to_kh_material(category_id, category_name,material_id, name, unit)
 
         # 同步存到库存信息中
         #storage.insert_info_to_material_io_storage_info(category_id, material_id, name, unit)
+
+        result = {
+            0: "存入异常，请联系后台人员！",
+            1: "已存入！",
+            -1: "类别表中未找到该类别",
+            -2: "更新类别状态异常，请联系后台人员！",
+            -3: "商品编号重复",
+            -4: "商品名称重复"
+        }
+
+        value = result.get(status, None)
+
+        return json.dumps("提示：" + value, ensure_ascii=False)
+
 
 # 获取项目信息 和 创建项目信息
 class Project:
@@ -106,7 +135,7 @@ class Project:
         """ all project show """
         projects = model.select_table_from_sql("kh_project")
         time.sleep(0.5)
-        return render.Project(projects)
+        return render.Project(list(projects))
 
     def POST(self):
         new_project = web.input()
@@ -117,12 +146,17 @@ class Project:
         name = new_project['name']
         status = model.check_project_info(id,name)
         #model.insert_info_to_kh_project(id, name)
-        if(status == 1):
-            return json.dumps("提示：项目编号" + id + "重复！", ensure_ascii=False)
-        if(status == 2):
-            return json.dumps("提示：项目名称" + name + "重复！", ensure_ascii=False)
 
-        return json.dumps("提示：项目" + name + "已添加！", ensure_ascii=False)
+        result = {
+            0: "存入异常，请联系后台人员！",
+            1: "已存入！",
+            -1: "项目编号重复",
+            -2: "项目名称重复"
+        }
+
+        value = result.get(status, None)
+
+        return json.dumps("提示：" + value, ensure_ascii=False)
 
 
 # 删除商品信息
@@ -134,6 +168,11 @@ class DeleteMaterial:
 # 删除类别信息
 class DeleteCategory:
     def POST(self, id):
+        # 判断该类别是否已被商品绑定
+        # status = db.select("kh_material", where="category_id=$id", vars=locals())
+        # if(not status):
+        #    return json.dumps("提示：该类别已绑定其它商品，请勿删除！", ensure_ascii=False)
+
         model.delete_info_from_table("material_category", id)
         raise web.seeother("/materialCategory")
 
@@ -150,8 +189,19 @@ class DeleteProject:
 # 库存信息
 class StorageInfo:
     def GET(self):
-        materials = db.select("material_io_storage_info")
         allCategory = db.select("material_category")
+
+        first_category_id = 0
+        materials = {}
+
+        # 获取第一个类别id
+        if allCategory:
+            first_category_id = db.select("material_category")[0]['serial_no']
+            first_category_id = int(first_category_id)
+
+            # 获取第一个类别的所有商品信息
+            materials = db.select("kh_material", where="category_id=$first_category_id", vars=locals())
+
         time.sleep(0.5)
         return render.StorageInfo(list(allCategory),list(materials))
 
@@ -170,7 +220,6 @@ class InStorage:
         value=db.select("material_category")
         if value :
             first_category_id = value[0]['serial_no']
-            # first_category_id=db.select("material_category")[0]['serial_no']
             first_category_id=int(first_category_id)
 
             # 获取第一个类别的所有商品信息
@@ -183,28 +232,26 @@ class InStorage:
         # 商品入库  1、如果库存有这个商品且价格一样的话，数量累加，但是之前的入库时间就乱了2、直接存库位里，能看到是啥时候入库的
         # 目前先选择第二种
 
-        # 存入material_io_storage_info库存信息表
         current_material = json.loads(web.data())
         print(current_material)
 
-        # category_id = current_material['categoryId']
-        # category_name = current_material['categoryName']
-        # material_id = current_material['materialId']
         name = current_material['materialName']
-        # unit = current_material['materialUnit']
-        # count = current_material['materialCount']
-        # price = current_material['materialPrice']
-        # tax = current_material['materialTax']
-        # tax_price = current_material['materialTaxPrice']
-
-        #status = storage.material_in_storage(category_id, material_id, name, unit, count, price, tax,tax_price)
 
         status = storage.material_in_storage(current_material)
 
-        if(status == 1):
-            return json.dumps("提示：商品" + name + "已入库！", ensure_ascii=False)
-        else :
-            return json.dumps("提示：商品" + name + "入库异常！", ensure_ascii=False)
+        result = {
+            0: "存入异常，请联系后台人员！",
+            1: "商品已入库！",
+            -2: "入库信息录入时发生异常！",
+            -3: "日志信息录入时发生异常！",
+            -4: "商品表中未找到该信息！",
+            -5: "更新商品表状态发生异常！"
+        }
+
+        value = result.get(status, None)
+
+        return json.dumps("提示：" + value, ensure_ascii=False)
+
 
 # 用于商品入库模块
 # 根据类别id显示该类别下所有商品详情
@@ -237,10 +284,12 @@ class CategoryNameChange:
         material = db.select("kh_material", where="category_id=$category_id", vars=locals())
         value = list(material)
 
+
         result = {}
         result['msg'] = 'SUCCESS'
         result['material'] = value
         result['material_number'] = len(value)
+        result['category_id'] = category_id
 
         return json.dumps(result)
 
@@ -338,7 +387,20 @@ class OutStorage:
         id = current_category['id']
         outCount = current_category['outCount']
 
-        storage.material_out_storage(current_category)
+        status=storage.material_out_storage(current_category)
+
+        result = {
+            0: "存入异常，请联系后台人员！",
+            1: "商品已出库！",
+            -1: "库存表中未找到该信息！",
+            -2: "更新库存信息失败！",
+            -4: "日志信息录入时发生异常！",
+            -5: "更新项目信息异常！！"
+        }
+
+        value = result.get(status, None)
+
+        return json.dumps("提示：" + value, ensure_ascii=False)
 
 # 出库条件筛选
 class FilterMaterial:

@@ -9,6 +9,11 @@ $def with (page)
             margin:0;
             padding:0;
         }
+		@media (min-width: 1200px) {
+			.container{
+				max-width: 1700x;
+			}
+		}
 		table{
             border-collapse:collapse;
         }
@@ -22,6 +27,8 @@ $def with (page)
             height:30px;
             padding:0 5px;
 			border: none;
+			text-align: center;
+			vertical-align: middle!important;
         }
         #menu {
             width: 200px;
@@ -76,11 +83,11 @@ $def with (page)
 		.fixed_height{
 			height: 100px;
 		}
-		.untax, .tax , .count{
+		.untax, .tax , .count ,.totalTax , .totalPrice .taxRate{
             height: 100%;
             width: 100%;
         }
-		.id , .outCount {
+		.id , .outCount , .projectId , .materialId , .projectName{
 		
         }
 		.outButtom{
@@ -97,17 +104,17 @@ $def with (page)
 		}
 		
     </style>
-	
-	<link rel="stylesheet" href="/static/bootstrap.min.css">
+
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
 	<script src="/static/jquery.min.js"></script>
 	<script src="/static/bootstrap.min.js"></script>
 	
 </head>
 
 <body>
-<div class="jumbotron text-center" style="margin-bottom:0">
-  <h1>KH-wcs系统</h1>
-</div>
+<!-- <div class="jumbotron text-center" style="margin-bottom:0"> -->
+  <!-- <h1>苏州坤厚ERP系统</h1> -->
+<!-- </div> -->
  
 <nav class="navbar navbar-inverse">
 	<div class="container-fluid">
@@ -120,10 +127,37 @@ $def with (page)
 			<a class="navbar-brand" href="#">坤厚自动化（苏州）有限公司</a>
 		</div>
 		<div class="collapse navbar-collapse" id="myNavbar">
+
 			<ul class="nav navbar-nav">
-				<li class="active"><a href="http://127.0.0.1:8080">主页</a></li>
-				<li><a href="#">页面 2</a></li>
-				<li><a href="#">页面 3</a></li>
+				<li class="active">
+					<a href="http://127.0.0.1:8080"><span class="glyphicon glyphicon-home"></span> 主页</a>
+				</li>
+				
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span>
+					信息总览<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="materialCategory">类别信息</a></li>
+						<li><a href="material">商品信息</a></li>
+						<li><a href="project">项目信息</a></li>
+						<!-- <li class="divider"></li> -->
+						<!-- <li><a href="#">分离的链接</a></li> -->
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-shopping-cart"></span>
+					商品出入库<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="inStorage">商品入库</a></li>
+						<li><a href="outStorage">商品出库</a></li>
+						<li><a href="storageInfo">商品库存</a></li>
+						<!-- <li class="divider"></li> -->
+						<!-- <li><a href="#">分离的链接</a></li> -->
+					</ul>
+				</li>
+				<!-- <li><a href="#">页面 3</a></li> -->
 			</ul>
 		</div>
 	 </div>

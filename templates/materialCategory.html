@@ -3,7 +3,7 @@ $def with (category)
 
 <div class="container">
 	<div class="jumbotron">
-		<h1> 商品类别总览 </h1>
+		<img src="https://cdn-icons-png.flaticon.com/512/1731/1731773.png" width="80px"  alt="商品类别"><h1  style="display : inline;vertical-align: middle">		商品类别总览</h1>
 	</div>
   
 	<div class="container">
@@ -26,9 +26,10 @@ $def with (category)
 									<td>$value.serial_no</td>
 									<td>$value.name</td>
 									<td>
-										<form action="/deleteCategory/$value.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
-											<input type="submit" class="btn btn-warning" value="删除"/>
-										</form>
+										$if not value.status:
+											<form action="/deleteCategory/$value.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
+												<input type="submit" class="btn btn-warning" value="删除"/>
+											</form>
 									</td>
 								</tr>
 							<tr bgcolor="#F5F5F5">

@@ -70,11 +70,27 @@ def material_in_storage(current_material):
     '''     2.存入入库日志表       '''
     table_name = "material_in_storage_log";
     status = db.insert(
-        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit, count=count, price=price,
-        tax_rate=tax, tax_price=tax_price
+        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
+        count=count, price=price,tax_rate=tax, tax_price=tax_price
     )
     if (not status):
         return -3  # 插入material_in_storage_log失败
+
+    '''     3.更改商品表状态       '''
+    table_name = "kh_material";
+    material = db.select(
+        table_name, where="category_id=$category_id AND material_id=$material_id AND unit = $unit", vars=locals()
+    )
+    # 如果存在该条商品，则获取该条商品的状态【0：库存中未入库；1：已入库】
+    if material :
+        material_status = material[0]['status'];
+    else:
+        return -4   # kh_material表中未找到该商品信息
+    if (not material_status ):
+        status = db.update(table_name, where="category_id=$category_id AND material_id=$material_id AND unit = $unit",
+                           vars=locals(), status=1)
+        if (not status) :
+            return -5   # 更新kh_material表中状态异常
 
     return 1;
 
@@ -93,7 +109,7 @@ def material_out_storage(current_material):
     table_name = "material_io_storage_info";
     value = db.select(table_name, where="id=$id", vars=locals())
     if (not value):
-        return 0  # 商品表中无该条信息
+        return -1  # 商品表中无该条信息
     # webpy的sql结果只能遍历一次，转为list可重复使用
     material = list(value);
 
@@ -101,16 +117,13 @@ def material_out_storage(current_material):
     current_count = material[0]['count'];
     new_count = int(current_count) - int(outCount);# 当前数量减去出库数量
 
-    status = db.update(table_name, where="id=$id",vars=locals(), count=new_count)
-    if (not status):
-        return -1;  # kh_material更新库存数量失败'''
-
     # 该条商品的入库金额
     current_tax_price = material[0]['tax_price'];
     new_tax_price = current_tax_price / current_count * new_count;  # 获得原先含税单价并乘上现有个数
-    status = db.update(table_name, where="id=$id", vars=locals(), tax_price=new_tax_price)
+
+    status = db.update(table_name, where="id=$id",vars=locals(), count=new_count,tax_price=new_tax_price)
     if (not status):
-        return -1;  # kh_material更新库存数量失败'''
+        return -2;  # kh_material更新失败'''
 
 
     '''     2.存入出库日志表       '''
@@ -127,11 +140,11 @@ def material_out_storage(current_material):
 
     table_name = "material_out_storage_log";
     status = db.insert(
-        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit, count=outCount, price=price,
-        tax_rate=tax, tax_price=tax_price,project=project
+        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
+        count=outCount, price=price,tax_rate=tax, tax_price=tax_price, project=project
     )
     if (not status):
-        return -3  # 插入material_in_storage_log失败
+        return -4  # 插入material_in_storage_log失败
 
     '''     3.更新到项目表中 material_id字段值 【含义：商品id 商品名 商品数量 出库时间】        '''
     table_name = "kh_project";
@@ -139,14 +152,13 @@ def material_out_storage(current_material):
     # 包含当前日期和时间的datetime对象
     now = datetime.now()
     # dd/mm/YY H:M:S
-    dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+    dt_string = now.strftime("%Y/%m/%d-%H:%M:%S")
 
     value = db.select(table_name, where="name=$project", vars=locals())[0]['material_id']
-    value = value + str(material_id) + " " + name + " " + outCount + " " + dt_string +" ; "
+    value = value + str(material_id) + " " + name + " " + outCount + " " + dt_string +";"
 
     status = db.update(table_name, where="name=$project",vars=locals(), material_id=value)
     if (not status):
-        return -4  # 插入kh_project失败
-
+        return -5  # 插入kh_project失败
 
     return 1;
