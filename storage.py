@@ -39,6 +39,7 @@ def material_in_storage(current_material):
     price = current_material['materialPrice']
     tax = current_material['materialTax']
     tax_price = current_material['materialTaxPrice']
+    invoice = current_material['invoice']
 
     '''kh_material不将累计数量存在该表中
     # 更新商品库存数量
@@ -61,9 +62,7 @@ def material_in_storage(current_material):
     table_name = "material_io_storage_info";
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
-        count=count, price=price,
-        tax_rate=tax, tax_price=tax_price
-    )
+        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice)
     if(not status):
         return -2 # 插入material_io_storage_info失败
 
@@ -71,8 +70,7 @@ def material_in_storage(current_material):
     table_name = "material_in_storage_log";
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
-        count=count, price=price,tax_rate=tax, tax_price=tax_price
-    )
+        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice)
     if (not status):
         return -3  # 插入material_in_storage_log失败
 
@@ -117,13 +115,13 @@ def material_out_storage(current_material):
     current_count = material[0]['count'];
     new_count = int(current_count) - int(outCount);# 当前数量减去出库数量
 
-    # 该条商品的入库金额
+    # 该条商品的入库含税总价
     current_tax_price = material[0]['tax_price'];
     new_tax_price = current_tax_price / current_count * new_count;  # 获得原先含税单价并乘上现有个数
 
     status = db.update(table_name, where="id=$id",vars=locals(), count=new_count,tax_price=new_tax_price)
     if (not status):
-        return -2;  # kh_material更新失败'''
+        return -2;  # kh_material更新失败
 
 
     '''     2.存入出库日志表       '''
@@ -131,23 +129,32 @@ def material_out_storage(current_material):
     category_id = material[0]['category_id']
     category_name = material[0]['category_name']
     material_id = material[0]['material_id']
-    name = material[0]['name']
+    material_name = material[0]['name']
     unit = material[0]['unit']
     price = material[0]['price']
     tax = material[0]['tax_rate']
+    invoice = material[0]['invoice_type']
     value = float(Decimal(str(1 + tax)) * Decimal(str(price)))  #单个含税价
-    tax_price = float(Decimal(str(value * int(outCount))))
+    tax_price = float(Decimal(str(value * int(outCount))))      #含税总价
 
-    table_name = "material_out_storage_log";
+    # 专票商品出库时的金额采用入库的未税单价金额
+    if (material[0]['invoice_type'] == "专票"):
+        total_price = float(Decimal(str(price * int(outCount))))
+    else:
+        price = value
+        total_price = tax_price
+
+    table_name = "material_out_storage_log"
     status = db.insert(
-        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
-        count=outCount, price=price,tax_rate=tax, tax_price=tax_price, project=project
+        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=material_name,
+        unit=unit,count=outCount, price=price, invoice_type=invoice, tax_rate=tax, total_price=total_price,
+        tax_price=tax_price,project=project
     )
     if (not status):
         return -4  # 插入material_in_storage_log失败
 
     '''     3.更新到项目表中 material_id字段值 【含义：商品id 商品名 商品数量 出库时间】        '''
-    table_name = "kh_project";
+    table_name = "kh_project"
 
     # 包含当前日期和时间的datetime对象
     now = datetime.now()
@@ -155,10 +162,14 @@ def material_out_storage(current_material):
     dt_string = now.strftime("%Y/%m/%d-%H:%M:%S")
 
     value = db.select(table_name, where="name=$project", vars=locals())[0]['material_id']
-    value = value + str(material_id) + " " + name + " " + outCount + " " + dt_string +";"
+    value = value + str(material_id) + " " + material_name + " " + outCount + " " + dt_string +";"
 
     status = db.update(table_name, where="name=$project",vars=locals(), material_id=value)
     if (not status):
         return -5  # 插入kh_project失败
+
+    table_name = "kh_project_material"  # [项目名称 商品id 商品名称 出库数量 出库单价(区分专普) 出库税率 出库未税总价 出库含税总价]
+    status = db.insert(table_name, project_name=project, material_id=material_id, material_name=material_name,
+                       outcount=outCount, price=price, invoice = invoice, total_price=total_price,tax_price=tax_price)
 
     return 1;

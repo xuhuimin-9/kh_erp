@@ -42,7 +42,8 @@ urls = (
 
     "/filterMaterial", "FilterMaterial",
     "/searchMaterial" , "SearchMaterial",
-    "/typeChange", "TypeChange"
+    "/typeChange", "TypeChange",
+    "/export", "Export"
 
 
 )
@@ -59,6 +60,11 @@ class ComplexEncoder(json.JSONEncoder):
             return obj.strftime('%Y-%m-%d')
         else:
             return json.JSONEncoder.default(self, obj)
+
+def firstDayOfMonth(dt):
+    """判断今天是不是这个月第一天"""
+    now_day = (dt + datetime.timedelta(days=-dt.day + 1)).day
+    return now_day == dt.day
 
 
 # 获取类别信息 和 新建类别信息
@@ -456,3 +462,5 @@ app = web.application(urls, globals())
 
 if __name__ == "__main__":
     app.run()
+    # now = datetime.date.today()
+    # a = firstDayOfMonth(now)

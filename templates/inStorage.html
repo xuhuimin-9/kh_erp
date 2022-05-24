@@ -19,6 +19,7 @@ $def with (allCategory,materials)
 							<th>商品数量</th>
 							<th>未税单价</th>
 							<th>未税总价</th>
+							<th>发票类型</th>
 							<th>税率</th>
 							<th>含税单价</th>
 							<th>含税总价</th>
@@ -30,7 +31,7 @@ $def with (allCategory,materials)
 							<form name="inStorageInfo">
 								<td>
 									$if allCategory :
-										<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+										<input id="categoryId" type="text" size="8" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
 								</td>
 								<td><select id="categoryName" >
 									$for value in allCategory:
@@ -39,7 +40,7 @@ $def with (allCategory,materials)
 								
 								<td>
 									$if allCategory :
-										<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
+										<input id="materialId" type="text" size="8" name="material_id" readonly="readonly" value=$materials[0].material_id>
 								</td>
 								
 								<td><select id="materialName" length="10px">
@@ -57,6 +58,9 @@ $def with (allCategory,materials)
 								
 								<td><input id="materialPrice" class="untax" size="4" name="price" value="1"></td>
 								<td><input id="materialTotalPrice" class="totalPrice" size="5" name="totalPrice" readonly="readonly" value="1"></td>
+								<td><select id="invoice">
+									<option>专票</option><option>普票</option>
+									</select></td>
 								<td><input id="materialTax" class="taxRate" size="4" name="tax_rate" value="0.13"></td>
 								<td><input id="materialTaxPrice" class="tax" size="5" value="1.13"></td>
 								<td><input id="materialTotalTaxPrice" class="totalTax" size="5" readonly="readonly" value="1.13"></td>
@@ -162,6 +166,7 @@ $def with (allCategory,materials)
         var materialPrice=document.getElementById("materialPrice").value;
 		var materialTax=document.getElementById("materialTax").value;
         var materialTaxPrice=document.getElementById("materialTotalTaxPrice").value;
+		var invoice=document.getElementById("invoice").value;
 		
         if(categoryId==""||materialId==""||materialName==""||materialUnit==""||materialCount==""||materialPrice==""||materialTax==""||materialTaxPrice=="")
 		{
@@ -181,7 +186,8 @@ $def with (allCategory,materials)
 								  materialCount:materialCount,
 								  materialPrice:materialPrice,
 								  materialTax:materialTax,
-								  materialTaxPrice:materialTaxPrice })
+								  materialTaxPrice:materialTaxPrice,
+								  invoice:invoice})
 			}).done(function( msg ) {
 				alert(msg);
 				window.location.reload(true);

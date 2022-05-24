@@ -75,6 +75,7 @@ $def with (allCategory,materials,projects)
 							<th>商品单位</th>
 							<th>库存数量</th>
 							<th>未税金额</th>
+							<th>发票类型</th>
 							<th>税率</th>
 							<th>含税金额</th>
 							<th>出库数量</th>
@@ -96,27 +97,6 @@ $def with (allCategory,materials,projects)
 <script src="static/jquery-1.9.1.min.js"></script>
 <script>
 
-	
-	// 出库按钮监听
-	/*$$('body').on("click", ".outButtom", function () {
-	
-		//出库id【io表中这条库存信息的id号，不是商品id】
-		var id=$$(".id").html();
-		
-		//出库数量
-		var count=$$(".outCount").val();
-		if(count==""||count=="")
-		{
-            alert("出库商品信息不全，请检查商品信息！")
-        }
-		else
-		{
-			//OutStorage(id,count);
-		}
-	
-    });*/
-	
-	
 	$$('body').on("input", ".untax", function () {
 		
 		var value=$$(this).parent().parent().find(".tax").val();
@@ -125,16 +105,12 @@ $def with (allCategory,materials,projects)
 		
     });
 	
-	
-
-	
-
 </script>
 	
 <script type="text/javascript">
-	function edit(val){ 
+	function test(val){ 
  
-        //这里就是val，别以为写错了，如果写成this会报错：Uncaught SyntaxError: Unexpected token 'this'，这是转过来的参数值的意思
+        //如果写成this会报错：Uncaught SyntaxError: Unexpected token 'this'，这是转过来的参数值的意思
         var id=$$(val).parent().parent().find(".id").text();
 		alert(id);
 		
@@ -149,19 +125,9 @@ $def with (allCategory,materials,projects)
  
 	}
 	
-	
-	function test1(){
-		alert(1);
-	}
-	
-	function test2(value){
-		alert(value);
-	}
-	
 	function OutStorage(val){
 		
-		//这里就是val，别以为写错了，如果写成this会报错：Uncaught SyntaxError: Unexpected token 'this'，这是转过来的参数值的意思
-        var id=$$(val).parent().parent().find(".id").text();
+	   var id=$$(val).parent().parent().find(".id").text();
 		
 		var count = $$(val).parent().parent().find(".outCount").val();
 		
@@ -243,6 +209,9 @@ $def with (allCategory,materials,projects)
 					
 					var tdPrice = tr.insertCell(-1);	
 					tdPrice.innerHTML = msgJson.material[i].price;
+					
+					var tdInvoice = tr.insertCell(-1);	
+					tdInvoice.innerHTML = msgJson.material[i].invoice_type;
 					
 					var tdTax = tr.insertCell(-1);	
 					tdTax.innerHTML = msgJson.material[i].tax_rate;

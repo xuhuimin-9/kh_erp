@@ -56,6 +56,7 @@ $def with (allCategory,materials)
 							<th>类别名称</th>
 							<th>商品名称</th>
 							<th>商品数量</th>
+							<th>含税均价</th>
 							<th>含税总价</th>
 							<th>操作</th>
 						</tr>
@@ -87,7 +88,9 @@ $def with (allCategory,materials)
 								<th>数量</th>
 								<th>单价</th>
 								<th>税率</th>
-								<th>含税金额</th>
+								<th>发票类型</th>
+								<th>总价</th>
+								<th>含税总价</th>
 								<th>入库时间</th>
 							</tr>
 						</thead>
@@ -158,6 +161,10 @@ $def with (allCategory,materials)
 				var tdCount = tr.insertCell(-1);
 				tdCount.innerHTML = msgJson["total_count"];
 				
+				var tdAverage = tr.insertCell(-1);
+				var average=msgJson["total_price"]/msgJson["total_count"]
+				tdAverage.innerHTML =average.toFixed(2);;
+				
 				var tdTaxPrice = tr.insertCell(-1);
 				tdTaxPrice.innerHTML = msgJson["total_price"];
 				
@@ -195,6 +202,17 @@ $def with (allCategory,materials)
 					
 					var tdTax = tr.insertCell(-1);	
 					tdTax.innerHTML = msgJson.material[i].tax_rate;
+					
+					var tdInvoice = tr.insertCell(-1);	
+					tdInvoice.innerHTML = msgJson.material[i].invoice_type;
+					
+					var tdTotelPrice = tr.insertCell(-1);
+					if (msgJson.material[i].invoice_type == "专票"){
+						tdTotelPrice.innerHTML = msgJson.material[i].price * msgJson.material[i].count;
+					}
+					else{	
+						tdTotelPrice.innerHTML = msgJson.material[i].tax_price;
+					}
 					
 					var tdTaxPrice = tr.insertCell(-1);	
 					tdTaxPrice.innerHTML = msgJson.material[i].tax_price;
