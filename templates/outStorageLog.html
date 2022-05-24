@@ -4,7 +4,20 @@ $def with (outStorageLogs)
 	<div class="jumbotron">
 		<img src="https://cdn-icons-png.flaticon.com/512/1753/1753926.png" width="80px"  alt="出库日志"><h1  style="display : inline;vertical-align: middle">		出库日志</h1>
 	</div>
-	
+	<div class="pull-right" id="query-form" style="padding-bottom:10px;">
+		<div style="float:left;margin-right:5px;height:40px">
+			<select id="datetime" >
+				<option>本月</option>
+				<option>全部</option>
+			</select>
+		</div>
+		<div class="btn-group">
+			
+			<button id="btn_export"  type="button" class="btn btn-primary btn-space" >
+				导出
+			</button>
+		</div>
+	</div>
 	<div class="row">
 		<div class="col-sm-12">
 			<div id="project" class="bs-example">
@@ -53,12 +66,18 @@ $def with (outStorageLogs)
 
 
 <script type="text/javascript">
-	function test()
-	{
-		
-		
+	$$('#btn_export').click(function(){
+		var  datetime= document.getElementById("datetime").value;
+		$$.ajax({
+			type: "POST",
+			url: "/storageLogExport",
+			data: JSON.stringify({info:"out",datetime:datetime})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				alert(msgJson);
+			});
 	
+	});
 	
-	}
 </script> 
 

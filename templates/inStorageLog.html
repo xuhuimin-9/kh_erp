@@ -4,16 +4,29 @@ $def with (inStorageLogs)
 	<div class="jumbotron">
 		<img src="https://cdn-icons-png.flaticon.com/512/1753/1753926.png" width="80px"  alt="入库日志"><h1  style="display : inline;vertical-align: middle">		入库日志</h1>
 	</div>
-	
+	<div class="pull-right" id="query-form" style="padding-bottom:10px;">
+		<div style="float:left;margin-right:5px;height:40px">
+			<select id="datetime" >
+				<option>本月</option>
+				<option>全部</option>
+			</select>
+		</div>
+		<div class="btn-group">
+			
+			<button id="btn_export"  type="button" class="btn btn-primary btn-space" >
+				导出
+			</button>
+		</div>
+	</div>
+ 
 	<div class="row">
 		<div class="col-sm-12">
-			<div id="project" class="bs-example">
-				<table class="table table-striped">
+			<div class="table-con" style="text-align: center">
+				<table id="inLogTable" class="table table-striped">
 					<thead>
 						<tr>
 							<th>编号</th>
 							<th>类别名称</th>
-							<th>商品编号</th>
 							<th>商品名称</th>
 							<th>商品单位</th>
 							<th>入库数量</th>
@@ -29,7 +42,6 @@ $def with (inStorageLogs)
 							<tr>
 								<td>$log.id</td>
 								<td>$log.category_name</td>
-								<td>$log.material_id</td>
 								<td>$log.name</td>
 								<td>$log.unit</td>
 								<td>$log.count</td>
@@ -41,55 +53,49 @@ $def with (inStorageLogs)
 							</tr>
 					</tbody>
 				</table>
+				</table>
 			</div>
 		</div>
 	</div>
-
-	<!-- 项目详情模态框（Modal） -->
-	<div class="modal fade" id="projectDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-lg">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-						&times;
-					</button>
-					<h3 class="modal-title" id="materialTitle">详情</h3>
-				</div>
-				<div class="modal-body">
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								<th>项目名称</th>
-								<th>商品编号</th>
-								<th>商品名称</th>
-								<th>出库数量</th>
-								<th>出库时间</th>
-							</tr>
-						</thead>
-						<tbody id="detailsTable">
-						
-						
-						</tbody>
-					</table>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
-					</button>
-				</div>
-			</div><!-- /.modal-content -->
-		</div><!-- /.modal -->
-	</div>
-
 </div>
 
 
 <script type="text/javascript">
-	function test()
-	{
-		
-		
+
+	function base64(content) {
+		return window.btoa(unescape(encodeURIComponent(content)));
+	};
 	
+	function tableToExcel() {
+		var excelContent = $$("#inLogTable").html();
+		// alert(excelContent);
+		var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
+		excelFile += "<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>";
+		excelFile += "<body><table width='10%' border='1'>";
+		excelFile += excelContent;
+		excelFile += "</table></body>";
+		excelFile += "</html>";
+		var link = "data:application/vnd.ms-excel;base64," + base64(excelFile);
+		var a = document.createElement("a");
+		var myDate = new Date((new Date).getTime() + 8*60*60*1000);
+		var time = myDate.toJSON().split('T').join(' ').substr(0,10); // 将1970/08/08转化成1970-08-08
+		a.download = "instorageinfo" + time + ".xlsx";
+		a.href = link;
+		a.click();
+	};
 	
-	}
+	$$('#btn_export').click(function(){
+		var  datetime= document.getElementById("datetime").value;
+		$$.ajax({
+			type: "POST",
+			url: "/storageLogExport",
+			data: JSON.stringify({info:"in",datetime:datetime})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				alert(msgJson);
+			});
+	
+	});
+	
 </script> 
 

@@ -45,7 +45,8 @@ urls = (
     "/typeChange", "TypeChange",
     "/export", "Export",
     "/inStorageLog", "InStorageLog",
-    "/outStorageLog", "OutStorageLog"
+    "/outStorageLog", "OutStorageLog",
+    "/storageLogExport", "StorageLogExport"
 
 
 )
@@ -464,12 +465,21 @@ class OutStorageLog:
         time.sleep(0.5)
         return render.OutStorageLog(list(logs))
 
-
 class Index:
     def GET(self):
-        """ all project show """
-        #projects = model.select_table_from_sql("kh_project")
         return render.index(0)
+
+# 导出信息
+class StorageLogExport:
+    def POST(self):
+        data = json.loads(web.data())
+        status = storage.exportStorageLog(data)
+        result=""
+        if(status==1):
+            result = "日志已生成成功！请到文件夹下查看！"
+        elif (status==-1):
+            result = "未查询到操作！生成失败！"
+        return json.dumps(result, cls=ComplexEncoder)
 
 
 app = web.application(urls, globals())
