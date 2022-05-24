@@ -43,7 +43,9 @@ urls = (
     "/filterMaterial", "FilterMaterial",
     "/searchMaterial" , "SearchMaterial",
     "/typeChange", "TypeChange",
-    "/export", "Export"
+    "/export", "Export",
+    "/inStorageLog", "InStorageLog",
+    "/outStorageLog", "OutStorageLog"
 
 
 )
@@ -52,6 +54,12 @@ urls = (
 t_globals = {"datestr": web.datestr}
 render = web.template.render("templates", base="base", globals=t_globals)
 
+def firstDayOfMonth(dt):
+    """判断今天是不是这个月第一天"""
+    now_day = (dt + datetime.timedelta(days=-dt.day + 1)).day
+    return now_day == dt.day
+
+# python识别不了日期格式，转换成str格式
 class ComplexEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
@@ -60,11 +68,6 @@ class ComplexEncoder(json.JSONEncoder):
             return obj.strftime('%Y-%m-%d')
         else:
             return json.JSONEncoder.default(self, obj)
-
-def firstDayOfMonth(dt):
-    """判断今天是不是这个月第一天"""
-    now_day = (dt + datetime.timedelta(days=-dt.day + 1)).day
-    return now_day == dt.day
 
 
 # 获取类别信息 和 新建类别信息
@@ -91,7 +94,6 @@ class MaterialCategory:
         value = result.get(status, None)
 
         return json.dumps("提示：" + value,ensure_ascii=False)
-
 
 
 # 获取商品信息 和 新建商品信息
@@ -136,13 +138,7 @@ class Project:
 
     def POST(self):
         new_project = web.input()
-        print(new_project)
-        print(new_project['id'])
-        print(new_project['name'])
-        id = new_project['id']
-        name = new_project['name']
-        status = model.check_project_info(id,name)
-        #model.insert_info_to_kh_project(id, name)
+        status = model.check_project_info(new_project)
 
         result = {
             0: "存入异常，请联系后台人员！",
@@ -223,7 +219,6 @@ class InStorage:
         # 目前先选择第二种
 
         current_material = json.loads(web.data())
-        print(current_material)
 
         name = current_material['materialName']
 
@@ -250,7 +245,6 @@ class CategoryChange:
     def POST(self):
 
         data = json.loads(web.data())
-        print(data)
         category_id=data["category"]
         material = db.select("kh_material", where="category_id=$category_id", vars=locals())
         value = list(material)
@@ -274,7 +268,6 @@ class CategoryNameChange:
         material = db.select("kh_material", where="category_id=$category_id", vars=locals())
         value = list(material)
 
-
         result = {}
         result['msg'] = 'SUCCESS'
         result['material'] = value
@@ -283,9 +276,9 @@ class CategoryNameChange:
 
         return json.dumps(result)
 
+
 # 用于入库模块 【已取消】
 # 根据类别id和商品id，更新商品信息【名称、单位】
-
 class MaterialChange:
     def POST(self):
         data = json.loads(web.data())
@@ -302,9 +295,9 @@ class MaterialChange:
 
         return json.dumps(result)
 
+
 # 用于入库模块
 # 根据类别id和商品id，更新商品信息【名称、单位】
-
 class MaterialNameChange:
     def POST(self):
         data = json.loads(web.data())
@@ -323,9 +316,9 @@ class MaterialNameChange:
 
         return json.dumps(result)
 
+
 # 用于新增商品
 # 根据类别id显示类别名称
-
 class TypeChange:
     def POST(self):
 
@@ -342,12 +335,12 @@ class TypeChange:
 
         return json.dumps(result)
 
+
 # 出库信息
 class OutStorage:
     def GET(self):
         # 获取所有类别信息
         allCategory = db.select("material_category")
-        # print(allCategory)
 
         first_category_id = 0
         materials = {}
@@ -366,7 +359,7 @@ class OutStorage:
         projects = model.select_table_from_sql("kh_project")
 
         time.sleep(0.5)
-        return render.OutStorage(list(allCategory), list(materials),list(projects))
+        return render.OutStorage(list(allCategory), list(materials), list(projects))
 
     def POST(self):
         # 存入material_io_storage_info库存信息表
@@ -449,6 +442,27 @@ class SearchMaterial:
         result['total_count'] = totalCount
 
         return json.dumps(result,cls=ComplexEncoder)
+
+# 导出模块
+class Export:
+    def GET(self):
+
+        time.sleep(0.5)
+        return render.Export()
+
+# 入库日志模块
+class InStorageLog:
+    def GET(self):
+        logs = db.select("material_in_storage_log")
+        time.sleep(0.5)
+        return render.InStorageLog(list(logs))
+
+# 出库日志模块
+class OutStorageLog:
+    def GET(self):
+        logs = db.select("material_out_storage_log")
+        time.sleep(0.5)
+        return render.OutStorageLog(list(logs))
 
 
 class Index:

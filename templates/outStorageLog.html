@@ -1,0 +1,64 @@
+$def with (outStorageLogs)
+
+<div class="container">
+	<div class="jumbotron">
+		<img src="https://cdn-icons-png.flaticon.com/512/1753/1753926.png" width="80px"  alt="出库日志"><h1  style="display : inline;vertical-align: middle">		出库日志</h1>
+	</div>
+	
+	<div class="row">
+		<div class="col-sm-12">
+			<div id="project" class="bs-example">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>编号</th>
+							<th>类别名称</th>
+							<th>商品编号</th>
+							<th>商品名称</th>
+							<th>商品单位</th>
+							<th>出库数量</th>
+							<th>出库单价</th>
+							<th>发票类型</th>
+							<th>税率</th>
+							<th>出库总价</th>
+							<th>含税总价</th>
+							<th>申领项目</th>
+							<th>操作时间</th>
+						</tr>
+					</thead>
+					<tbody id="outLogTable">
+						$for log in outStorageLogs:
+							<tr>
+								<td>$log.id</td>
+								<td>$log.category_name</td>
+								<td>$log.material_id</td>
+								<td>$log.name</td>
+								<td>$log.unit</td>
+								<td>$log.count</td>
+								<td>$log.price</td>
+								<td>$log.invoice_type</td>
+								<td>$log.tax_rate</td>
+								<td>$log.total_price</td>
+								<td>$log.tax_price</td>
+								<td>$log.project</td>
+								<td>$log.create_time</td>
+							</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<script type="text/javascript">
+	function test()
+	{
+		
+		
+	
+	
+	}
+</script> 
+

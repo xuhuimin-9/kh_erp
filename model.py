@@ -87,8 +87,11 @@ def insert_info_to_kh_project(project_id,name):
     return status
 
 
-# 检查项目信息
-def check_project_info(id,name):
+# 检查项目信息并保存 主要判断编号和名称是否重复
+def check_project_info(new_project):
+    id = new_project['id']
+    name = new_project['name']
+
     get_status = db.select("kh_project", where="project_id=$id", vars=locals())
     if(get_status):
         return -1   # id重复

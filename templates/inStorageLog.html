@@ -1,0 +1,95 @@
+$def with (inStorageLogs)
+
+<div class="container">
+	<div class="jumbotron">
+		<img src="https://cdn-icons-png.flaticon.com/512/1753/1753926.png" width="80px"  alt="入库日志"><h1  style="display : inline;vertical-align: middle">		入库日志</h1>
+	</div>
+	
+	<div class="row">
+		<div class="col-sm-12">
+			<div id="project" class="bs-example">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>编号</th>
+							<th>类别名称</th>
+							<th>商品编号</th>
+							<th>商品名称</th>
+							<th>商品单位</th>
+							<th>入库数量</th>
+							<th>未税单价</th>
+							<th>发票类型</th>
+							<th>税率</th>
+							<th>含税总价</th>
+							<th>操作时间</th>
+						</tr>
+					</thead>
+					<tbody>
+						$for log in inStorageLogs:
+							<tr>
+								<td>$log.id</td>
+								<td>$log.category_name</td>
+								<td>$log.material_id</td>
+								<td>$log.name</td>
+								<td>$log.unit</td>
+								<td>$log.count</td>
+								<td>$log.price</td>
+								<td>$log.invoice_type</td>
+								<td>$log.tax_rate</td>
+								<td>$log.tax_price</td>
+								<td>$log.create_time</td>
+							</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!-- 项目详情模态框（Modal） -->
+	<div class="modal fade" id="projectDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h3 class="modal-title" id="materialTitle">详情</h3>
+				</div>
+				<div class="modal-body">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>项目名称</th>
+								<th>商品编号</th>
+								<th>商品名称</th>
+								<th>出库数量</th>
+								<th>出库时间</th>
+							</tr>
+						</thead>
+						<tbody id="detailsTable">
+						
+						
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+
+</div>
+
+
+<script type="text/javascript">
+	function test()
+	{
+		
+		
+	
+	
+	}
+</script> 
+
