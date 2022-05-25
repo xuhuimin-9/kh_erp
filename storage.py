@@ -46,6 +46,7 @@ def material_in_storage(current_material):
     tax_price = current_material['materialTaxPrice']
     invoice = current_material['invoice']
     storage = current_material['storageName']
+    supplier = current_material['supplier']
 
     '''kh_material不将累计数量存在该表中
     # 更新商品库存数量
@@ -68,7 +69,7 @@ def material_in_storage(current_material):
     table_name = "material_io_storage_info";
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
-        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice,storage_name=storage)
+        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice,storage_name=storage,supplier=supplier)
     if(not status):
         return -2 # 插入material_io_storage_info失败
 
@@ -76,7 +77,7 @@ def material_in_storage(current_material):
     table_name = "material_in_storage_log";
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
-        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice,storage_name=storage)
+        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice,storage_name=storage,supplier=supplier)
     if (not status):
         return -3  # 插入material_in_storage_log失败
 
@@ -141,6 +142,7 @@ def material_out_storage(current_material):
     tax = material[0]['tax_rate']
     invoice = material[0]['invoice_type']
     storage = material[0]['storage_name']
+    supplier = material[0]['supplier']
     value = float(Decimal(str(1 + tax)) * Decimal(str(price)))  #单个含税价
     tax_price = float(Decimal(str(value * int(outCount))))      #含税总价
 
@@ -155,7 +157,7 @@ def material_out_storage(current_material):
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=material_name,
         unit=unit,count=outCount, price=price, invoice_type=invoice, tax_rate=tax, total_price=total_price,
-        tax_price=tax_price,project=project,storage_name=storage
+        tax_price=tax_price,project=project,storage_name=storage,supplier=supplier
     )
     if (not status):
         return -4  # 插入material_in_storage_log失败
@@ -178,7 +180,7 @@ def material_out_storage(current_material):
     table_name = "kh_project_material"
     status = db.insert(table_name, project_name=project, material_id=material_id, material_name=material_name,
                        outcount=outCount, price=price, invoice = invoice, total_price=total_price,tax_price=tax_price,
-                       storage_name=storage)
+                       storage_name=storage,supplier=supplier)
 
     return 1;
 

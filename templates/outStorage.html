@@ -74,6 +74,7 @@ $def with (allCategory,materials,projects)
 							<th>入库时间</th>
 							<th>商品名称</th>
 							<th>商品单位</th>
+							<th>供应商</th>
 							<th>库存数量</th>
 							<th>未税金额</th>
 							<th>发票类型</th>
@@ -201,6 +202,9 @@ $def with (allCategory,materials,projects)
 					
 					var tdUnit = tr.insertCell(-1);	
 					tdUnit.innerHTML = msgJson.material[i].unit;
+					
+					var tdSupplier = tr.insertCell(-1);	
+					tdSupplier.innerHTML = msgJson.material[i].supplier;
 					
 					var tdCount = tr.insertCell(-1);	
 					tdCount.innerHTML = msgJson.material[i].count;

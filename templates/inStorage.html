@@ -172,6 +172,7 @@ $def with (allCategory,materials)
         var materialTaxPrice=document.getElementById("materialTotalTaxPrice").value;
 		var invoice=document.getElementById("invoice").value;
 		var storageName=document.getElementById("storageName").value;
+		var supplier=document.getElementById("supplier").value;
 		
         if(categoryId==""||materialId==""||materialName==""||materialUnit==""||materialCount==""||materialPrice==""||materialTax==""||materialTaxPrice=="")
 		{
@@ -193,7 +194,8 @@ $def with (allCategory,materials)
 								  materialTax:materialTax,
 								  materialTaxPrice:materialTaxPrice,
 								  invoice:invoice,
-								  storageName:storageName})
+								  storageName:storageName,
+								  supplier:supplier})
 			}).done(function( msg ) {
 				alert(msg);
 				window.location.reload(true);
