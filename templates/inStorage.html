@@ -1,4 +1,4 @@
-$def with (allCategory,materials)
+$def with (allCategory,materials,recentOperate)
 
 <div class="container">
 	<div class="jumbotron">
@@ -29,6 +29,27 @@ $def with (allCategory,materials)
 						</tr>
 					</thead>
 					<tbody>
+						$for operate in recentOperate:
+							<tr>
+								<td>$operate.storage_name</td>
+								<td>/</td>
+								<td>$operate.category_name</td>
+								<td>/</td>
+								<td>$operate.name</td>
+								<td>$operate.supplier</td>
+								<td>$operate.unit</td>
+								<td>$operate.count</td>
+								<td>$operate.price</td>
+								<td>/</td>
+								<td>$operate.invoice_type</td>
+								<td>$operate.tax_rate</td>
+								<td>/</td>
+								<td>$operate.tax_price</td>
+								<td>$operate.create_time</td>
+							</tr>
+								
+								
+								
 						<tr>
 							<form name="inStorageInfo">
 								<td><select id="storageName">
