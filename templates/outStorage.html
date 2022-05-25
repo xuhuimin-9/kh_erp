@@ -151,7 +151,12 @@ $def with (allCategory,materials,projects)
 			data: JSON.stringify({id:id,outCount:count,project:project})
 			}).done(function( msg ) {
 				alert(msg);
-				window.location.reload(true);
+				//获得显示库存信息的表格
+				var table = document.getElementById("storageTable");
+				// 清空当前table的所有数据
+				while (table.hasChildNodes()) {
+				  table.removeChild(table.lastChild);
+				}
 			});
 	
 	}

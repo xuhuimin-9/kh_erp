@@ -100,8 +100,8 @@ class MaterialCategory:
 # 获取商品信息 和 新建商品信息
 class Material:
     def GET(self):
-        category = model.select_table_from_sql("material_category")
-        material = model.select_table_from_sql("kh_material")
+        category = list(model.select_table_from_sql("material_category"))
+        material = list(model.select_table_from_sql("kh_material"))
         time.sleep(0.5)
         return render.Material(category,material)
 
@@ -195,7 +195,6 @@ class StorageInfo:
         # 获取第一个类别id
         if allCategory:
             first_category_id = db.select("material_category")[0]['serial_no']
-            first_category_id = int(first_category_id)
 
             # 获取第一个类别的所有商品信息
             materials = db.select("kh_material", where="category_id=$first_category_id", vars=locals())
@@ -209,7 +208,6 @@ class InStorage:
     def GET(self):
         # 获取所有类别信息
         allCategory=db.select("material_category")
-        print(allCategory)
 
         first_category_id = 0
         materials = {}
@@ -219,7 +217,6 @@ class InStorage:
         value=db.select("material_category")
         if value :
             first_category_id = value[0]['serial_no']
-            first_category_id=int(first_category_id)
 
             # 获取第一个类别的所有商品信息
             materials=db.select("kh_material", where="category_id=$first_category_id", vars=locals())
@@ -278,7 +275,6 @@ class CategoryChange:
 class CategoryNameChange:
     def POST(self):
         data = json.loads(web.data())
-        print(data)
         category_name = data["category"]
         category_id = db.select("material_category", what='serial_no' , where="name=$category_name", vars=locals())[0]['serial_no']
         material = db.select("kh_material", where="category_id=$category_id", vars=locals())
@@ -298,7 +294,6 @@ class CategoryNameChange:
 class MaterialChange:
     def POST(self):
         data = json.loads(web.data())
-        print(data)
         category_id = data["categoryId"]
         material_id = data["materialId"]
         material = db.select("kh_material", where="category_id=$category_id AND material_id=$material_id", vars=locals())
@@ -338,7 +333,6 @@ class TypeChange:
     def POST(self):
 
         data = json.loads(web.data())
-        print(data)
         category_id=data["category"]
         category_info = db.select("material_category", where="serial_no=$category_id", vars=locals())
         value = list(category_info)
@@ -364,8 +358,6 @@ class OutStorage:
         value = db.select("material_category")
         if value:
             first_category_id = value[0]['serial_no']
-            # first_category_id=db.select("material_category")[0]['serial_no']
-            first_category_id = int(first_category_id)
 
             # 获取第一个类别的所有商品信息
             materials = db.select("kh_material", where="category_id=$first_category_id", vars=locals())
@@ -379,7 +371,6 @@ class OutStorage:
     def POST(self):
         # 存入material_io_storage_info库存信息表
         current_category = json.loads(web.data())
-        print(current_category)
 
         # 该id为io库存表的中唯一id，非商品id
         id = current_category['id']
@@ -404,7 +395,6 @@ class OutStorage:
 class FilterMaterial:
     def POST(seif):
         data = json.loads(web.data())
-        print(data)
         category_id = data["categoryId"]
         material_id = data["materialId"]
 

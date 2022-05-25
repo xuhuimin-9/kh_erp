@@ -5,7 +5,9 @@ $def with (category,materials)
 	<div class="jumbotron">
 		<img src="https://cdn-icons-png.flaticon.com/512/1675/1675276.png" width="80px"  alt="商品信息总览"><h1  style="display : inline;vertical-align: middle">		商品信息总览</h1>
 	</div>
-  
+	<!-- <div class="pull-left" id="query-form" style="padding-bottom:20px;"> -->
+		<!-- <button class="btn btn-success" data-toggle="modal" data-target="#newNaterial" >新增</button> -->
+	<!-- </div> -->
 	<div class="row">
 		<div >
 			<div id="materialInfo" class="bs-example">
@@ -18,7 +20,7 @@ $def with (category,materials)
 							<th>商品名称</th>
 							<th>商品单位</th>
 							<th>供应商</th>
-							<th>操作</th>
+							<th>操作     <button class="glyphicon glyphicon-plus" data-toggle="modal" data-target="#newNaterial" ></button></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -37,20 +39,65 @@ $def with (category,materials)
 										</form>
 								</td>
 							</tr>
+							
 						<tr bgcolor="#F5F5F5">
 							<td style="font-weight: bold;">新增商品</td>
 							<td><select id="type_name" >
 								$for value in category:
 									<option>$value.name</option>
 							</select></td>
-							<td><input id="material_id" type="text"></td>
-							<td><input id="material_name" type="text"></td>
-							<td><input id="material_unit" type="text"></td>
-							<td><input id="material_supplier" type="text"></td>
+							<td><input id="material_id" size="10" type="text"></td>
+							<td><input id="material_name" size="10" type="text"></td>
+							<td><input id="material_unit" size="10" type="text"></td>
+							<td><input id="material_supplier" size="10" type="text"></td>
 							<td><button type="button" class="btn btn-primary " onclick="NewMaterial()">提交</button></td>
 						</tr>
 					</tbody>
 				</table>
+			</div>
+		</div>
+	</div>
+	<!-- 新增商品的模态框（Modal） -->
+	<div class="modal fade" id="newNaterial" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h3 class="modal-title" id="materialTitle">新增商品</h3>
+				</div>
+				<div class="modal-body">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>类别名称</th>
+								<th>商品编号</th>
+								<th>商品名称</th>
+								<th>单位</th>
+								<th>供应商</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody id="newMaterialTable">
+							<tr>
+								<td><select id="model_type_name" >
+									$for value in category:
+										<option>$value.name</option>
+								</select></td>
+								<td><input id="model_material_id" size="10" type="text"></td>
+								<td><input id="model_material_name" size="10" type="text"></td>
+								<td><input id="model_material_unit" size="10" type="text"></td>
+								<td><input id="model_material_supplier" size="10" type="text"></td>
+								<td><button type="button" class="btn btn-primary " onclick="ModelNewMaterial()">提交</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -65,6 +112,28 @@ $def with (category,materials)
 		var material_name=document.getElementById("material_name").value;
         var material_unit=document.getElementById("material_unit").value;
 		var material_supplier=document.getElementById("material_supplier").value;
+		
+		if( type_name == "" || material_id == "" || material_name == "" || material_unit == "" || material_supplier ==""){
+			alert("请先输入商品信息")
+		}else{
+		// AJAX request
+		$$.ajax({
+			type: "POST",
+			url: "/material",
+			data: 'category_name='+type_name+'&material_id='+material_id+'&name='+material_name+'&unit='+material_unit+'&supplier='+material_supplier
+			}).done(function( msg ) {
+				alert(msg);
+				window.location.reload(true);
+			});
+		}
+	}
+	//模态框的新增
+	function ModelNewMaterial(){
+		var type_name=document.getElementById("model_type_name").value;
+        var material_id=document.getElementById("model_material_id").value;
+		var material_name=document.getElementById("model_material_name").value;
+        var material_unit=document.getElementById("model_material_unit").value;
+		var material_supplier=document.getElementById("model_material_supplier").value;
 		
 		if( type_name == "" || material_id == "" || material_name == "" || material_unit == "" || material_supplier ==""){
 			alert("请先输入商品信息")

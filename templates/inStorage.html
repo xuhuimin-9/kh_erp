@@ -12,7 +12,6 @@ $def with (allCategory,materials,recentOperate)
 					<thead>
 						<tr>
 							<th>仓库</th>
-							<th>类别编号</th>
 							<th>类别名称</th>
 							<th>商品编号</th>
 							<th>商品名称</th>
@@ -20,7 +19,7 @@ $def with (allCategory,materials,recentOperate)
 							<th>商品单位</th>
 							<th>商品数量</th>
 							<th>未税单价</th>
-							<th>未税总价</th>
+							<!-- <th>未税总价</th> -->
 							<th>发票类型</th>
 							<th>税率</th>
 							<th>含税单价</th>
@@ -32,33 +31,25 @@ $def with (allCategory,materials,recentOperate)
 						$for operate in recentOperate:
 							<tr>
 								<td>$operate.storage_name</td>
-								<td>/</td>
 								<td>$operate.category_name</td>
 								<td>/</td>
 								<td>$operate.name</td>
 								<td>$operate.supplier</td>
 								<td>$operate.unit</td>
-								<td>$operate.count</td>
+								<td width="30px">$operate.count</td>
 								<td>$operate.price</td>
-								<td>/</td>
+								<!-- <td>/</td> -->
 								<td>$operate.invoice_type</td>
 								<td>$operate.tax_rate</td>
 								<td>/</td>
 								<td>$operate.tax_price</td>
 								<td>$operate.create_time</td>
 							</tr>
-								
-								
-								
 						<tr>
 							<form name="inStorageInfo">
 								<td><select id="storageName">
 									<option>自动化</option><option>智能</option>
 									</select></td>
-								<td>
-									$if allCategory :
-										<input id="categoryId" type="text" size="5" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
-								</td>
 								<td><select id="categoryName" >
 									$for value in allCategory:
 										<option>$value.name</option>
@@ -66,27 +57,27 @@ $def with (allCategory,materials,recentOperate)
 								
 								<td>
 									$if allCategory :
-										<input id="materialId" type="text" size="5" name="material_id" readonly="readonly" value=$materials[0].material_id>
+										<input id="materialId" type="text" size="4" name="material_id" readonly="readonly" value=$materials[0].material_id>
 								</td>
 								
-								<td><select id="materialName" length="10px">
+								<td><select id="materialName">
 									$for value in materials:
 										<option>$value.name</option>
 								</select></td>
 								
 								$if allCategory :
-									<td><input id="supplier" type="text" readonly="readonly" size="5" value=$materials[0].supplier></td>
-									<td><input id="materialUnit" type="text" size="5" name="material_unit" readonly="readonly" value=$materials[0].unit></td>
+									<td><input id="supplier" type="text" readonly="readonly" size="3" value=$materials[0].supplier></td>
+									<td><input id="materialUnit" type="text" size="1" name="material_unit" readonly="readonly" value=$materials[0].unit></td>
 								
 								<!-- 入库商品数量 限制输入正整数 -->
-								<td><input id="materialCount" class="count" type="text" size="5" name="material_count" value="1" oninput="value=value.replace(/^(0+)|[^\d]+/g,'')"></td>
+								<td><input id="materialCount" class="count" type="text" size="1" name="material_count" value="1" oninput="value=value.replace(/^(0+)|[^\d]+/g,'')"></td>
 								
 								<td><input id="materialPrice" class="untax" size="4" name="price" value="1"></td>
-								<td><input id="materialTotalPrice" class="totalPrice" size="5" name="totalPrice" readonly="readonly" value="1"></td>
+								<!-- <td><input id="materialTotalPrice" class="totalPrice" size="5" name="totalPrice" readonly="readonly" value="1"></td> -->
 								<td><select id="invoice">
 									<option>专票</option><option>普票</option>
 									</select></td>
-								<td><input id="materialTax" class="taxRate" size="4" name="tax_rate" value="0.13"></td>
+								<td><input id="materialTax" class="taxRate" size="1" name="tax_rate" value="0.13"></td>
 								<td><input id="materialTaxPrice" class="tax" size="5" value="1.13"></td>
 								<td><input id="materialTotalTaxPrice" class="totalTax" size="5" readonly="readonly" value="1.13"></td>
 							</form>
@@ -110,8 +101,8 @@ $def with (allCategory,materials,recentOperate)
 		var tax_rate=Number(inStorageInfo.tax_rate.value);
 		
 		//未税总价
-		var tax_price=price * count
-		$$(this).parent().parent().find(".totalPrice").val((tax_price).toFixed(2));
+		//var tax_price=price * count
+		//$$(this).parent().parent().find(".totalPrice").val((tax_price).toFixed(2));
 		
 		//含税单价
 		var tax_price=price * ( 1 + tax_rate )
@@ -129,8 +120,8 @@ $def with (allCategory,materials,recentOperate)
 		var tax_rate=Number(inStorageInfo.tax_rate.value);
 		
 		//未税总价
-		var tax_price=price * count
-		$$(this).parent().parent().find(".totalPrice").val((tax_price).toFixed(2));
+		//var tax_price=price * count
+		//$$(this).parent().parent().find(".totalPrice").val((tax_price).toFixed(2));
 		
 		//含税单价
 		var tax_price=price * ( 1 + tax_rate )
@@ -167,8 +158,8 @@ $def with (allCategory,materials,recentOperate)
 		$$(this).parent().parent().find(".untax").val((untax_price).toFixed(2));
 
 		//未税总价
-		var total_untax_price=untax_price * count;
-		$$(this).parent().parent().find(".totalPrice").val((total_untax_price).toFixed(2));
+		//var total_untax_price=untax_price * count;
+		//$$(this).parent().parent().find(".totalPrice").val((total_untax_price).toFixed(2));
 
 		//含税总价
 		var total_tax_price=tax_price * count
@@ -310,7 +301,7 @@ $def with (allCategory,materials,recentOperate)
 					materialSupplier.value="";
 					document.getElementById("materialCount").value="";
 					document.getElementById("materialPrice").value="";
-					document.getElementById("materialTotalPrice").value="";
+					<!-- document.getElementById("materialTotalPrice").value=""; -->
 					document.getElementById("materialTaxPrice").value="";
 					document.getElementById("materialTotalTaxPrice").value="";
 				}
