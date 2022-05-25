@@ -32,7 +32,16 @@ def insert_info_to_material_category(name, number):
 
 
 # 创建商品【类别编号 类别名称 商品编号 商品名称 商品单位】
-def insert_info_to_kh_material(category_id,category_name,material_id,name, unit):
+def insert_info_to_kh_material(new_material):
+
+    # 根据类别名称获得类别编号
+    category_name = new_material['category_name']
+    category_id = db.select("material_category", what='serial_no', where="name=$category_name", vars=locals())[0][
+        'serial_no']
+    material_id = new_material['material_id']   # 新商品编号
+    name = new_material['name']     # 新商品名称
+    unit = new_material['unit']     # 新商品单位
+    supplier = new_material['supplier'] # 新商品供应商
 
     '''     1.更改类别表状态       '''
     table_name = "material_category";
@@ -44,7 +53,7 @@ def insert_info_to_kh_material(category_id,category_name,material_id,name, unit)
     if category:
         category_status = category[0]['status']
     else:
-        return -1  # material_category表中未找到该商品信息
+        return -1  # material_category表中未找到该类别信息
 
     if (not category_status):
         status = db.update(table_name, where="serial_no=$category_id AND name=$category_name",
@@ -69,8 +78,8 @@ def insert_info_to_kh_material(category_id,category_name,material_id,name, unit)
 
     '''     3.存入商品表       '''
     status = db.insert(
-        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit
-    )
+        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
+        supplier=supplier)
     if (not status):
         return 0  # 更新kh_material表中状态异常
 

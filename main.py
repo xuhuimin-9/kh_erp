@@ -107,13 +107,7 @@ class Material:
 
     def POST(self):
         new_material = web.input()
-        category_name = new_material['category_name']
-        category_id = db.select("material_category", what='serial_no' , where="name=$category_name", vars=locals())[0]['serial_no']
-        material_id = new_material['material_id']
-        name = new_material['name']
-        unit = new_material['unit']
-
-        status=model.insert_info_to_kh_material(category_id, category_name,material_id, name, unit)
+        status = model.insert_info_to_kh_material(new_material)
 
         result = {
             0: "存入异常，请联系后台人员！",

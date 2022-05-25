@@ -6,66 +6,52 @@ $def with (category,materials)
 		<img src="https://cdn-icons-png.flaticon.com/512/1675/1675276.png" width="80px"  alt="商品信息总览"><h1  style="display : inline;vertical-align: middle">		商品信息总览</h1>
 	</div>
   
-	<div class="container">
-		<div class="row">
-			<div >
-				<div id="materialInfo" class="bs-example">
-					<table class="table table-striped">
-						<thead>
+	<div class="row">
+		<div >
+			<div id="materialInfo" class="bs-example">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>编号</th>
+							<th>类别名称</th>
+							<th>商品编号</th>
+							<th>商品名称</th>
+							<th>商品单位</th>
+							<th>供应商</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						$for material in materials:
 							<tr>
-								<th>编号</th>
-								<th>类别名称</th>
-								<th>商品编号</th>
-								<th>商品名称</th>
-								<th>商品单位</th>
-								<th>操作</th>
+								<td>$material.id</td>
+								<td>$material.category_name</td>
+								<td>$material.material_id</td>
+								<td>$material.name</td>
+								<td>$material.unit</td>
+								<td>$material.supplier</td>
+								<td>
+									$if not material.status:
+										<form action="/deleteMaterial/$material.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
+											<input type="submit" class="btn btn-warning" value="删除"/>
+										</form>
+								</td>
 							</tr>
-						</thead>
-						<tbody>
-							$for material in materials:
-								<tr>
-									<td>$material.id</td>
-									<td>$material.category_name</td>
-									<td>$material.material_id</td>
-									<td>$material.name</td>
-									<td>$material.unit</td>
-									<td>
-										$if not material.status:
-											<form action="/deleteMaterial/$material.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
-												<input type="submit" class="btn btn-warning" value="删除"/>
-											</form>
-									</td>
-								</tr>
-							<tr bgcolor="#F5F5F5">
-								<td style="font-weight: bold;">新增商品</td>
-								
-								<td><select id="type_name" >
-									$for value in category:
-										<option>$value.name</option>
-								</select></td>
-								<td><input id="material_id" type="text"></td>
-								<td><input id="material_name" type="text"></td>
-								<td><input id="material_unit" type="text"></td>
-								<td><button type="button" class="btn btn-primary " onclick="NewMaterial()">提交</button></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+						<tr bgcolor="#F5F5F5">
+							<td style="font-weight: bold;">新增商品</td>
+							<td><select id="type_name" >
+								$for value in category:
+									<option>$value.name</option>
+							</select></td>
+							<td><input id="material_id" type="text"></td>
+							<td><input id="material_name" type="text"></td>
+							<td><input id="material_unit" type="text"></td>
+							<td><input id="material_supplier" type="text"></td>
+							<td><button type="button" class="btn btn-primary " onclick="NewMaterial()">提交</button></td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
-			<!-- <div class="col-sm-4"> -->
-				<!-- <div id="new_material" class="bs-example">	 -->
-					<!-- 新增商品<br> -->
-					<!-- <form> -->
-						<!-- <center>类  别  编  号  ：<input type="text" id="type_id"><br><br><br> -->
-						<!-- <center>商  品  编  号  ：<input type="text" id="material_id"><br><br><br> -->
-						<!-- <center>商  品  名  称  ：<input type="text" id="material_name"><br><br><br> -->
-						<!-- <center>商  品  单  位  ：<input type="text" id="material_unit"><br><br><br> -->
-						<!-- <div id="newMaterial" class="bs-example">	 -->
-							<!-- <button type="button" class="btn btn-primary " onclick="NewMaterial()">提交</button> -->
-						<!-- </div> -->
-					<!-- </form> -->
-				<!-- </div> -->
-			<!-- </div> -->
 		</div>
 	</div>
 </div>
@@ -78,15 +64,16 @@ $def with (category,materials)
         var material_id=document.getElementById("material_id").value;
 		var material_name=document.getElementById("material_name").value;
         var material_unit=document.getElementById("material_unit").value;
+		var material_supplier=document.getElementById("material_supplier").value;
 		
-		if( type_name == "" || material_id == "" || material_name == "" || material_unit == "" ){
+		if( type_name == "" || material_id == "" || material_name == "" || material_unit == "" || material_supplier ==""){
 			alert("请先输入商品信息")
 		}else{
 		// AJAX request
 		$$.ajax({
 			type: "POST",
 			url: "/material",
-			data: 'category_name='+type_name+'&material_id='+material_id+'&name='+material_name+'&unit='+material_unit
+			data: 'category_name='+type_name+'&material_id='+material_id+'&name='+material_name+'&unit='+material_unit+'&supplier='+material_supplier
 			}).done(function( msg ) {
 				alert(msg);
 				window.location.reload(true);
