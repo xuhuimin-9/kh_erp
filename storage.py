@@ -184,10 +184,11 @@ def material_out_storage(current_material):
 
 # 导出指定时间段的入库日志内容
 def exportInStorageLog(data):
-    type=data['info']
     timeSlot=data['datetime']
     fileName=data['fileName']
+
     table_name="material_in_storage_log"
+
     if(timeSlot == "本月"):
         result=db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')", vars=locals())
     elif(timeSlot == "全部"):
@@ -199,29 +200,31 @@ def exportInStorageLog(data):
     work_book = xlwt.Workbook(encoding='utf-8')
     sheet = work_book.add_sheet('sheet')
     sheet.write(0, 0, '编号')
-    sheet.write(0, 1, '类别名称')
-    sheet.write(0, 2, '商品名称')
-    sheet.write(0, 3, '商品单位')
-    sheet.write(0, 4, '入库数量')
-    sheet.write(0, 5, '入库单价')
-    sheet.write(0, 6, '发票类型')
-    sheet.write(0, 7, '税率')
-    sheet.write(0, 8, '含税总价')
-    sheet.write(0, 9, '入库时间')
+    sheet.write(0, 1, '仓库名称')
+    sheet.write(0, 2, '类别名称')
+    sheet.write(0, 3, '商品名称')
+    sheet.write(0, 4, '商品单位')
+    sheet.write(0, 5, '入库数量')
+    sheet.write(0, 6, '入库单价')
+    sheet.write(0, 7, '发票类型')
+    sheet.write(0, 8, '税率')
+    sheet.write(0, 9, '含税总价')
+    sheet.write(0, 10, '入库时间')
     logInfo=list(result)
     number=len(logInfo)
     for i in range(1,number+1):
         sheet.write(i, 0, logInfo[i - 1]['id'])
         sheet.write(i, 1, logInfo[i - 1]['category_name'])
-        sheet.write(i, 2, logInfo[i - 1]['name'])
-        sheet.write(i, 3, logInfo[i - 1]['unit'])
-        sheet.write(i, 4, logInfo[i - 1]['count'])
-        sheet.write(i, 5, logInfo[i - 1]['price'])
-        sheet.write(i, 6, logInfo[i - 1]['invoice_type'])
-        sheet.write(i, 7, logInfo[i - 1]['tax_rate'])
-        sheet.write(i, 8, logInfo[i - 1]['tax_price'])
+        sheet.write(i, 2, logInfo[i - 1]['storage_name'])
+        sheet.write(i, 3, logInfo[i - 1]['name'])
+        sheet.write(i, 4, logInfo[i - 1]['unit'])
+        sheet.write(i, 5, logInfo[i - 1]['count'])
+        sheet.write(i, 6, logInfo[i - 1]['price'])
+        sheet.write(i, 7, logInfo[i - 1]['invoice_type'])
+        sheet.write(i, 8, logInfo[i - 1]['tax_rate'])
+        sheet.write(i, 9, logInfo[i - 1]['tax_price'])
         value=logInfo[i - 1]['create_time'].strftime("%Y/%m/%d")
-        sheet.write(i, 9, value)
+        sheet.write(i, 10, value)
 
     today=datetime.today()
     today=today.strftime("%Y/%m/%d")
@@ -230,10 +233,12 @@ def exportInStorageLog(data):
     return 1
 
 # 导出指定时间段的出库日志内容
-def exportInStorageLog(data):
+def exportOutStorageLog(data):
     timeSlot=data['datetime']
     fileName=data['fileName']
+
     table_name="material_out_storage_log"
+
     if(timeSlot == "本月"):
         result=db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')", vars=locals())
     elif(timeSlot == "全部"):
@@ -245,29 +250,35 @@ def exportInStorageLog(data):
     work_book = xlwt.Workbook(encoding='utf-8')
     sheet = work_book.add_sheet('sheet')
     sheet.write(0, 0, '编号')
-    sheet.write(0, 1, '类别名称')
-    sheet.write(0, 2, '商品名称')
-    sheet.write(0, 3, '商品单位')
-    sheet.write(0, 4, '入库数量')
-    sheet.write(0, 5, '入库单价')
-    sheet.write(0, 6, '发票类型')
-    sheet.write(0, 7, '税率')
-    sheet.write(0, 8, '含税总价')
-    sheet.write(0, 9, '入库时间')
+    sheet.write(0, 1, '项目名称')
+    sheet.write(0, 2, '仓库名称')
+    sheet.write(0, 3, '类别名称')
+    sheet.write(0, 4, '商品名称')
+    sheet.write(0, 5, '商品单位')
+    sheet.write(0, 6, '出库数量')
+    sheet.write(0, 7, '出库单价')
+    sheet.write(0, 8, '发票类型')
+    sheet.write(0, 9, '税率')
+    sheet.write(0, 10, '出库总价')
+    sheet.write(0, 11, '含税总价')
+    sheet.write(0, 12, '出库时间')
     logInfo=list(result)
     number=len(logInfo)
     for i in range(1,number+1):
         sheet.write(i, 0, logInfo[i - 1]['id'])
-        sheet.write(i, 1, logInfo[i - 1]['category_name'])
-        sheet.write(i, 2, logInfo[i - 1]['name'])
-        sheet.write(i, 3, logInfo[i - 1]['unit'])
-        sheet.write(i, 4, logInfo[i - 1]['count'])
-        sheet.write(i, 5, logInfo[i - 1]['price'])
-        sheet.write(i, 6, logInfo[i - 1]['invoice_type'])
-        sheet.write(i, 7, logInfo[i - 1]['tax_rate'])
-        sheet.write(i, 8, logInfo[i - 1]['tax_price'])
+        sheet.write(i, 1, logInfo[i - 1]['project'])
+        sheet.write(i, 2, logInfo[i - 1]['storage_name'])
+        sheet.write(i, 3, logInfo[i - 1]['category_name'])
+        sheet.write(i, 4, logInfo[i - 1]['name'])
+        sheet.write(i, 5, logInfo[i - 1]['unit'])
+        sheet.write(i, 6, logInfo[i - 1]['count'])
+        sheet.write(i, 7, logInfo[i - 1]['price'])
+        sheet.write(i, 8, logInfo[i - 1]['invoice_type'])
+        sheet.write(i, 9, logInfo[i - 1]['tax_rate'])
+        sheet.write(i, 10, logInfo[i - 1]['total_price'])
+        sheet.write(i, 11, logInfo[i - 1]['tax_price'])
         value=logInfo[i - 1]['create_time'].strftime("%Y/%m/%d")
-        sheet.write(i, 9, value)
+        sheet.write(i, 12, value)
 
     today=datetime.today()
     today=today.strftime("%Y/%m/%d")

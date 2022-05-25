@@ -70,10 +70,12 @@ $def with (outStorageLogs)
 <script type="text/javascript">
 	$$('#btn_export').click(function(){
 		var  datetime= document.getElementById("datetime").value;
+		var myDate = new Date((new Date).getTime() + 8*60*60*1000);
+		var time = myDate.toJSON().split('T').join(' ').substr(0,10); // 将1970/08/08转化成1970-08-08并取前10个
 		$$.ajax({
 			type: "POST",
 			url: "/storageLogExport",
-			data: JSON.stringify({type:"in",datetime:datetime,fileName:"OutStorageLog-"+time})
+			data: JSON.stringify({type:"out",datetime:datetime,fileName:"OutStorageLog-"+time})
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
 				alert(msgJson);

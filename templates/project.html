@@ -17,7 +17,6 @@ $def with (projects)
 								<th>编号</th>
 								<th>项目编号</th>
 								<th>项目名称</th>
-								<th>所申领商品</th>
 								<th>操作</th>
 							</tr>
 						</thead>
@@ -27,23 +26,14 @@ $def with (projects)
 									<td>$project.id</td>
 									<td class="projectId">$project.project_id</td>
 									<td class="projectName">$project.name</td>
-									<td class="materialId">$project.material_id</td>
 									<td>
-										$if project.material_id :
-											<button class="btn btn-success" data-toggle="modal" data-toggle='modal' data-target='#projectDetails' onclick="getDetails(this)" data-target="#projectDetails">详情</button>
-											
-										$else :
-											<form action="/deleteProject/$project.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
-												<input type="submit" class="btn btn-warning" value="删除"/>
-											</form>
-
+										<button class="btn btn-success" data-toggle="modal" data-target="#projectDetails" onclick="getDetails(this)" >详情</button>
 									</td>
 								</tr>
 							<tr bgcolor="#F5F5F5">
 								<td style="font-weight: bold;">新增项目</td>
 								<td><input id="project_number" type="text"></td>
 								<td><input id="project_name" type="text"></td>
-								<td>/</td>
 								<td><button type="button" class="btn btn-primary " onclick="NewProject()">提交</button></td>
 							</tr>
 						</tbody>
@@ -85,8 +75,8 @@ $def with (projects)
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
 					</button>
 				</div>
-			</div><!-- /.modal-content -->
-		</div><!-- /.modal -->
+			</div>
+		</div>
 	</div>
 
 </div>
@@ -116,42 +106,57 @@ $def with (projects)
 		
 		var id=$$(val).parent().parent().find(".projectId").text();
 		var name=$$(val).parent().parent().find(".projectName").text();
-		var materialId=$$(val).parent().parent().find(".materialId").text();
-		
 		var tableDetails = document.getElementById("detailsTable");
-		var info = materialId.split(';');
-
-		//模态框
-		while (tableDetails.hasChildNodes()) {
-		  tableDetails.removeChild(tableDetails.lastChild);
-		}
 		
-		var number = info.length;
-
-		for(var i = 0 ; i < number - 1 ; i++ )
-		{
-			var tr = tableDetails.insertRow(-1);
+		$$.ajax({
+			type: "POST",
+			url: "/projecInfo",
+			data: JSON.stringify({projectName:name})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
 				
-			var material = info[i].split(' ');
+				//模态框 清除信息
+				while (tableDetails.hasChildNodes()) {
+				  tableDetails.removeChild(tableDetails.lastChild);
+				}
+					
+				status = msgJson["status"];
+				
+				if(status=="FAIL"){
+				
+					//alert("未获取到当前项目的申领记录！");
+					//return;
+				}
+				else{
+				
+					var material = msgJson["project_material"]
+					var number = material.length;
+					
+					for(var i = 0 ; i < number ; i++ )
+					{
+						var tr = tableDetails.insertRow(-1);
+						
+						var tdProjectName = tr.insertCell(-1);
+						tdProjectName.innerHTML = name;
+						
+						var tdStorageName = tr.insertCell(-1);
+						tdStorageName.innerHTML = material[i]['storage_name'];
+						
+						var tdMaterialId = tr.insertCell(-1);
+						tdMaterialId.innerHTML = material[i]['material_id'];
+						
+						var tdMaterialName = tr.insertCell(-1);
+						tdMaterialName.innerHTML = material[i]['material_name'];
+						
+						var tdCount = tr.insertCell(-1);	
+						tdCount.innerHTML = material[i]['outcount'];
+						
+						var tdInTime = tr.insertCell(-1);	
+						tdInTime.innerHTML = material[i]['datetime'];
 
-			//var material = materialId.split(' ');
-			
-			var tdProjectName = tr.insertCell(-1);
-			tdProjectName.innerHTML = name;
-			
-			var tdMaterialId = tr.insertCell(-1);
-			tdMaterialId.innerHTML = material[0];
-			
-			var tdMaterialName = tr.insertCell(-1);
-			tdMaterialName.innerHTML = material[1];
-			
-			var tdCount = tr.insertCell(-1);	
-			tdCount.innerHTML = material[2];
-			
-			var tdInTime = tr.insertCell(-1);	
-			tdInTime.innerHTML = material[3];
-
-		}
+					}
+				}
+			});
 	
 	}
 

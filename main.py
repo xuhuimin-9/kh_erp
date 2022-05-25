@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 from __future__ import unicode_literals
 from datetime import date, datetime
-from decimal import Decimal
 
 import web
 import json
@@ -46,7 +45,8 @@ urls = (
     "/export", "Export",
     "/inStorageLog", "InStorageLog",
     "/outStorageLog", "OutStorageLog",
-    "/storageLogExport", "StorageLogExport"
+    "/storageLogExport", "StorageLogExport",
+    "/projecInfo", "ProjecInfo"
 
 
 )
@@ -151,6 +151,23 @@ class Project:
         value = result.get(status, None)
 
         return json.dumps("提示：" + value, ensure_ascii=False)
+
+class ProjecInfo:
+    def POST(self):
+        data = json.loads(web.data())
+        project_name = data["projectName"]
+        value = db.select("kh_project_material",where="project_name=$project_name", vars=locals())
+        material = list(value)
+        result = {}
+        if(not value):
+            result['status'] = 'FAIL'
+            result['project_material'] = {}
+        else:
+            result['status'] = 'SUCCESS'
+            result['project_material'] = material
+
+        return json.dumps(result,cls=ComplexEncoder)
+
 
 
 # 删除商品信息
@@ -302,7 +319,6 @@ class MaterialChange:
 class MaterialNameChange:
     def POST(self):
         data = json.loads(web.data())
-        print(data)
         category_id = data["categoryId"]
         material_name = data["materialName"]
         #material_id = db.select("kh_material", what='material_id' , where="name=$material_name", vars=locals())[0]['material_id']
@@ -429,7 +445,6 @@ class SearchMaterial:
         totalPrice = 0  # 含税总价计算
         for i in range(0,searchMaterial_number):
             value = searchMaterial[i]['tax_price']
-            # totalPrice = float(Decimal(str(totalPrice + value))) # 不可行 累加会出现小数过多的情况
             totalPrice = totalPrice + value
             value = searchMaterial[i]['count']
             totalCount = totalCount + value
@@ -473,8 +488,13 @@ class Index:
 class StorageLogExport:
     def POST(self):
         data = json.loads(web.data())
+        # 入库日志
         if(data['type']=="in"):
             status = storage.exportInStorageLog(data)
+        # 出库日志
+        elif (data['type'] == "out"):
+            status = storage.exportOutStorageLog(data)
+
         result=""
         if(status==1):
             result = "日志已生成成功！请到文件夹下查看！"
