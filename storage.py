@@ -45,6 +45,7 @@ def material_in_storage(current_material):
     tax = current_material['materialTax']
     tax_price = current_material['materialTaxPrice']
     invoice = current_material['invoice']
+    storage = current_material['storageName']
 
     '''kh_material不将累计数量存在该表中
     # 更新商品库存数量
@@ -67,7 +68,7 @@ def material_in_storage(current_material):
     table_name = "material_io_storage_info";
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
-        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice)
+        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice,storage_name=storage)
     if(not status):
         return -2 # 插入material_io_storage_info失败
 
@@ -75,7 +76,7 @@ def material_in_storage(current_material):
     table_name = "material_in_storage_log";
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=name, unit=unit,
-        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice)
+        count=count, price=price,tax_rate=tax, tax_price=tax_price, invoice_type = invoice,storage_name=storage)
     if (not status):
         return -3  # 插入material_in_storage_log失败
 
@@ -95,7 +96,7 @@ def material_in_storage(current_material):
         if (not status) :
             return -5   # 更新kh_material表中状态异常
 
-    return 1;
+    return 1
 
 
 # 商品出库
@@ -139,6 +140,7 @@ def material_out_storage(current_material):
     price = material[0]['price']
     tax = material[0]['tax_rate']
     invoice = material[0]['invoice_type']
+    storage = material[0]['storage_name']
     value = float(Decimal(str(1 + tax)) * Decimal(str(price)))  #单个含税价
     tax_price = float(Decimal(str(value * int(outCount))))      #含税总价
 
@@ -153,7 +155,7 @@ def material_out_storage(current_material):
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=material_name,
         unit=unit,count=outCount, price=price, invoice_type=invoice, tax_rate=tax, total_price=total_price,
-        tax_price=tax_price,project=project
+        tax_price=tax_price,project=project,storage_name=storage
     )
     if (not status):
         return -4  # 插入material_in_storage_log失败
@@ -166,27 +168,26 @@ def material_out_storage(current_material):
     # dd/mm/YY H:M:S
     dt_string = now.strftime("%Y/%m/%d-%H:%M:%S")
 
-    value = db.select(table_name, where="name=$project", vars=locals())[0]['material_id']
+    #value = db.select(table_name, where="name=$project", vars=locals())[0]['material_id']
     #value = value + str(material_id) + " " + material_name + " " + outCount + " " + dt_string +";"
 
     #status = db.update(table_name, where="name=$project",vars=locals(), material_id=value)
     #if (not status):
     #    return -5  # 插入kh_project失败
-
-    table_name = "kh_project_material"  # [项目名称 商品id 商品名称 出库数量 出库单价(区分专普) 出库税率 出库未税总价 出库含税总价]
+    # [项目名称 商品id 商品名称 出库数量 出库单价(区分专普) 出库税率 出库未税总价 出库含税总价 仓库名称]
+    table_name = "kh_project_material"
     status = db.insert(table_name, project_name=project, material_id=material_id, material_name=material_name,
-                       outcount=outCount, price=price, invoice = invoice, total_price=total_price,tax_price=tax_price)
+                       outcount=outCount, price=price, invoice = invoice, total_price=total_price,tax_price=tax_price,
+                       storage_name=storage)
 
     return 1;
 
-# 导出指定时间段的日志内容
-def exportStorageLog(data):
+# 导出指定时间段的入库日志内容
+def exportInStorageLog(data):
     type=data['info']
     timeSlot=data['datetime']
-    if(type == "in"):
-        table_name="material_in_storage_log"
-    else:
-        table_name="material_out_storage_log"
+    fileName=data['fileName']
+    table_name="material_in_storage_log"
     if(timeSlot == "本月"):
         result=db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')", vars=locals())
     elif(timeSlot == "全部"):
@@ -224,5 +225,52 @@ def exportStorageLog(data):
 
     today=datetime.today()
     today=today.strftime("%Y/%m/%d")
-    work_book.save('StorageLog.xls')
+    work_book.save(fileName+".xls")
+    #work_book.save('StorageLog.xls')
+    return 1
+
+# 导出指定时间段的出库日志内容
+def exportInStorageLog(data):
+    timeSlot=data['datetime']
+    fileName=data['fileName']
+    table_name="material_out_storage_log"
+    if(timeSlot == "本月"):
+        result=db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')", vars=locals())
+    elif(timeSlot == "全部"):
+        result=db.select(table_name, vars=locals())
+
+    if(not result):
+        return -1;  # 本月无操作
+
+    work_book = xlwt.Workbook(encoding='utf-8')
+    sheet = work_book.add_sheet('sheet')
+    sheet.write(0, 0, '编号')
+    sheet.write(0, 1, '类别名称')
+    sheet.write(0, 2, '商品名称')
+    sheet.write(0, 3, '商品单位')
+    sheet.write(0, 4, '入库数量')
+    sheet.write(0, 5, '入库单价')
+    sheet.write(0, 6, '发票类型')
+    sheet.write(0, 7, '税率')
+    sheet.write(0, 8, '含税总价')
+    sheet.write(0, 9, '入库时间')
+    logInfo=list(result)
+    number=len(logInfo)
+    for i in range(1,number+1):
+        sheet.write(i, 0, logInfo[i - 1]['id'])
+        sheet.write(i, 1, logInfo[i - 1]['category_name'])
+        sheet.write(i, 2, logInfo[i - 1]['name'])
+        sheet.write(i, 3, logInfo[i - 1]['unit'])
+        sheet.write(i, 4, logInfo[i - 1]['count'])
+        sheet.write(i, 5, logInfo[i - 1]['price'])
+        sheet.write(i, 6, logInfo[i - 1]['invoice_type'])
+        sheet.write(i, 7, logInfo[i - 1]['tax_rate'])
+        sheet.write(i, 8, logInfo[i - 1]['tax_price'])
+        value=logInfo[i - 1]['create_time'].strftime("%Y/%m/%d")
+        sheet.write(i, 9, value)
+
+    today=datetime.today()
+    today=today.strftime("%Y/%m/%d")
+    work_book.save(fileName+".xls")
+    #work_book.save('StorageLog.xls')
     return 1

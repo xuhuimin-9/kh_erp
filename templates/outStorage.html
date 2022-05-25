@@ -70,6 +70,7 @@ $def with (allCategory,materials,projects)
 					<thead>
 						<tr>
 							<th>编号</th>
+							<th>仓库</th>
 							<th>入库时间</th>
 							<th>商品名称</th>
 							<th>商品单位</th>
@@ -131,12 +132,6 @@ $def with (allCategory,materials,projects)
 		
 		var count = $$(val).parent().parent().find(".outCount").val();
 		
-		
-		/*if(isNaN(count)){
-
-			alert("您输入的出库数量非整型数字，请重新输入！");
-			return;
-		}*/
 		for (let i = 0; i < count.length; i++) 
 		{	
 			var status = isNaN(count[i])
@@ -194,6 +189,9 @@ $def with (allCategory,materials,projects)
 					var tdId = tr.insertCell(-1);	//在最后增加一列
 					tdId.innerHTML = msgJson.material[i].id;
 					tdId.className="id";
+					
+					var tdStorageName = tr.insertCell(-1);	
+					tdStorageName.innerHTML = msgJson.material[i].storage_name;
 					
 					var tdTime = tr.insertCell(-1);	
 					tdTime.innerHTML = msgJson.material[i].create_time;

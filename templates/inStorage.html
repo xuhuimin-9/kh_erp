@@ -11,6 +11,7 @@ $def with (allCategory,materials)
 				<table class="table table-striped" >
 					<thead>
 						<tr>
+							<th>仓库</th>
 							<th>类别编号</th>
 							<th>类别名称</th>
 							<th>商品编号</th>
@@ -29,9 +30,12 @@ $def with (allCategory,materials)
 					<tbody>
 						<tr>
 							<form name="inStorageInfo">
+								<td><select id="storageName">
+									<option>自动化</option><option>智能</option>
+									</select></td>
 								<td>
 									$if allCategory :
-										<input id="categoryId" type="text" size="8" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+										<input id="categoryId" type="text" size="5" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
 								</td>
 								<td><select id="categoryName" >
 									$for value in allCategory:
@@ -40,7 +44,7 @@ $def with (allCategory,materials)
 								
 								<td>
 									$if allCategory :
-										<input id="materialId" type="text" size="8" name="material_id" readonly="readonly" value=$materials[0].material_id>
+										<input id="materialId" type="text" size="5" name="material_id" readonly="readonly" value=$materials[0].material_id>
 								</td>
 								
 								<td><select id="materialName" length="10px">
@@ -167,6 +171,7 @@ $def with (allCategory,materials)
 		var materialTax=document.getElementById("materialTax").value;
         var materialTaxPrice=document.getElementById("materialTotalTaxPrice").value;
 		var invoice=document.getElementById("invoice").value;
+		var storageName=document.getElementById("storageName").value;
 		
         if(categoryId==""||materialId==""||materialName==""||materialUnit==""||materialCount==""||materialPrice==""||materialTax==""||materialTaxPrice=="")
 		{
@@ -187,7 +192,8 @@ $def with (allCategory,materials)
 								  materialPrice:materialPrice,
 								  materialTax:materialTax,
 								  materialTaxPrice:materialTaxPrice,
-								  invoice:invoice})
+								  invoice:invoice,
+								  storageName:storageName})
 			}).done(function( msg ) {
 				alert(msg);
 				window.location.reload(true);

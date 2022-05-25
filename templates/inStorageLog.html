@@ -26,6 +26,7 @@ $def with (inStorageLogs)
 					<thead>
 						<tr>
 							<th>编号</th>
+							<th>仓库</th>
 							<th>类别名称</th>
 							<th>商品名称</th>
 							<th>商品单位</th>
@@ -41,6 +42,7 @@ $def with (inStorageLogs)
 						$for log in inStorageLogs:
 							<tr>
 								<td>$log.id</td>
+								<td>$log.storage_name</td>
 								<td>$log.category_name</td>
 								<td>$log.name</td>
 								<td>$log.unit</td>
@@ -78,7 +80,7 @@ $def with (inStorageLogs)
 		var link = "data:application/vnd.ms-excel;base64," + base64(excelFile);
 		var a = document.createElement("a");
 		var myDate = new Date((new Date).getTime() + 8*60*60*1000);
-		var time = myDate.toJSON().split('T').join(' ').substr(0,10); // 将1970/08/08转化成1970-08-08
+		var time = myDate.toJSON().split('T').join(' ').substr(0,10); // 将1970/08/08转化成1970-08-08并取前10个
 		a.download = "instorageinfo" + time + ".xlsx";
 		a.href = link;
 		a.click();
@@ -86,10 +88,13 @@ $def with (inStorageLogs)
 	
 	$$('#btn_export').click(function(){
 		var  datetime= document.getElementById("datetime").value;
+		var myDate = new Date((new Date).getTime() + 8*60*60*1000);
+		var time = myDate.toJSON().split('T').join(' ').substr(0,10); // 将1970/08/08转化成1970-08-08并取前10个
 		$$.ajax({
 			type: "POST",
 			url: "/storageLogExport",
-			data: JSON.stringify({info:"in",datetime:datetime})
+			
+			data: JSON.stringify({type:"in",datetime:datetime,fileName:"InStorageLog-"+time})
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
 				alert(msgJson);

@@ -25,6 +25,7 @@ $def with (outStorageLogs)
 					<thead>
 						<tr>
 							<th>编号</th>
+							<th>仓库</th>
 							<th>类别名称</th>
 							<th>商品编号</th>
 							<th>商品名称</th>
@@ -43,6 +44,7 @@ $def with (outStorageLogs)
 						$for log in outStorageLogs:
 							<tr>
 								<td>$log.id</td>
+								<td>$log.storage_name</td>
 								<td>$log.category_name</td>
 								<td>$log.material_id</td>
 								<td>$log.name</td>
@@ -71,7 +73,7 @@ $def with (outStorageLogs)
 		$$.ajax({
 			type: "POST",
 			url: "/storageLogExport",
-			data: JSON.stringify({info:"out",datetime:datetime})
+			data: JSON.stringify({type:"in",datetime:datetime,fileName:"OutStorageLog-"+time})
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
 				alert(msgJson);

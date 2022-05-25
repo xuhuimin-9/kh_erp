@@ -473,7 +473,8 @@ class Index:
 class StorageLogExport:
     def POST(self):
         data = json.loads(web.data())
-        status = storage.exportStorageLog(data)
+        if(data['type']=="in"):
+            status = storage.exportInStorageLog(data)
         result=""
         if(status==1):
             result = "日志已生成成功！请到文件夹下查看！"

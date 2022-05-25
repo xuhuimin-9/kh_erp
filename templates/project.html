@@ -50,18 +50,6 @@ $def with (projects)
 					</table>
 				</div>
 			</div>
-			<!-- <div class="col-sm-4"> -->
-				<!-- <div id="new_project" class="bs-example">	 -->
-					<!-- 新增项目<br> -->
-					<!-- <form> -->
-						<!-- <center>项目名称：<input type="text" id="project_name"><br><br><br> -->
-						<!-- <center>项目编号：<input type="text" id="project_number"><br><br><br> -->
-						<!-- <div id="newProject" class="bs-example">	 -->
-							<!-- <button type="button" class="btn btn-primary " onclick="NewProject()">提交</button> -->
-						<!-- </div> -->
-					<!-- </form> -->
-				<!-- </div> -->
-			<!-- </div> -->
 		</div>
 	</div>
 
@@ -80,6 +68,7 @@ $def with (projects)
 						<thead>
 							<tr>
 								<th>项目名称</th>
+								<th>仓库</th>
 								<th>商品编号</th>
 								<th>商品名称</th>
 								<th>出库数量</th>
@@ -149,7 +138,7 @@ $def with (projects)
 			
 			var tdProjectName = tr.insertCell(-1);
 			tdProjectName.innerHTML = name;
-				
+			
 			var tdMaterialId = tr.insertCell(-1);
 			tdMaterialId.innerHTML = material[0];
 			
