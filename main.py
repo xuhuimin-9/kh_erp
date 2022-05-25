@@ -431,13 +431,18 @@ class FilterMaterial:
 class SearchMaterial:
     def POST(seif):
         data = json.loads(web.data())
-        print(data)
         category_id = data["categoryId"]
         material_id = data["materialId"]
+        storage_name = data["storageName"]
 
         # 从库存中筛选出来的信息
-        material = db.select("material_io_storage_info", where="category_id=$category_id AND material_id=$material_id AND count>0",
-                             vars=locals())
+        if(storage_name == "全部"):
+            material = db.select("material_io_storage_info",
+                                 where="category_id=$category_id AND material_id=$material_id AND count>0",vars=locals())
+        else:
+            material = db.select("material_io_storage_info",
+                                 where="category_id=$category_id AND material_id=$material_id AND count>0 AND storage_name=$storage_name",
+                                 vars=locals())
         searchMaterial = list(material)
         searchMaterial_number = len(searchMaterial)
 

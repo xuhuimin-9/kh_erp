@@ -13,6 +13,7 @@ $def with (allCategory,materials)
 				<table class="table table-striped" id="filterTable">
 					<thead>
 						<tr>
+							<th>仓库名称</th>
 							<th>类别编号</th>
 							<th>类别名称</th>
 							<th>商品编号</th>
@@ -22,6 +23,9 @@ $def with (allCategory,materials)
 					</thead>
 					<tbody>
 						<tr>
+							<td><select id="storageName">
+								<option>全部</option><option>自动化</option><option>智能</option>
+								</select></td>
 							<td>
 								$if allCategory :
 								<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
@@ -82,6 +86,7 @@ $def with (allCategory,materials)
 					<table class="table table-striped">
 						<thead>
 							<tr>
+								<th>仓库名称</th>
 								<th>类别名称</th>
 								<th>商品名称</th>
 								<th>单位</th>
@@ -120,6 +125,7 @@ $def with (allCategory,materials)
 		
 		var  categoryId= document.getElementById("categoryId").value;
 		var  materialId= document.getElementById("materialId").value;
+		var  storageName= document.getElementById("storageName").value;
 		
 		//获得显示库存信息的表格 并根据条件筛选更新表格
 		var tableStorage = document.getElementById("storageTable");
@@ -129,7 +135,7 @@ $def with (allCategory,materials)
 		$$.ajax({
 			type: "POST",
 			url: "/searchMaterial",
-			data: JSON.stringify({categoryId:categoryId,materialId:materialId})
+			data: JSON.stringify({categoryId:categoryId,materialId:materialId,storageName:storageName})
 			}).done(function( msg ) {
 			
 				/*  json回参  */
@@ -140,7 +146,6 @@ $def with (allCategory,materials)
 				result['material_number'] = searchMaterial_number	//库存中该商品库存>0的条目的数量 不是库存总量 用于模态框遍历
 				result['total_count'] = totalCount		//搜索的商品累计库存 用于页面框显示
 				*/
-			
 			
 				msgJson=JSON.parse(msg);
 				
@@ -185,7 +190,11 @@ $def with (allCategory,materials)
 				{
 					var tr = tableDetails.insertRow(-1);		//在最后增加一行
 					
-					var tdCategoryName = tr.insertCell(-1);	//在最后增加一列
+					
+					var tdStorageName = tr.insertCell(-1);	//在最后增加一列
+					tdStorageName.innerHTML = msgJson.material[i].storage_name;
+					
+					var tdCategoryName = tr.insertCell(-1);
 					tdCategoryName.innerHTML = document.getElementById("categoryName").value;
 					
 					var tdMaterialName = tr.insertCell(-1);
