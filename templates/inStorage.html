@@ -16,6 +16,7 @@ $def with (allCategory,materials)
 							<th>类别名称</th>
 							<th>商品编号</th>
 							<th>商品名称</th>
+							<th>供应商</th>
 							<th>商品单位</th>
 							<th>商品数量</th>
 							<th>未税单价</th>
@@ -52,10 +53,9 @@ $def with (allCategory,materials)
 										<option>$value.name</option>
 								</select></td>
 								
-								<td>
-									$if allCategory :
-										<input id="materialUnit" type="text" size="5" name="material_unit" readonly="readonly" value=$materials[0].unit>
-								</td>
+								$if allCategory :
+									<td><input id="supplier" type="text" readonly="readonly" size="5" value=$materials[0].supplier></td>
+									<td><input id="materialUnit" type="text" size="5" name="material_unit" readonly="readonly" value=$materials[0].unit></td>
 								
 								<!-- 入库商品数量 限制输入正整数 -->
 								<td><input id="materialCount" class="count" type="text" size="5" name="material_count" value="1" oninput="value=value.replace(/^(0+)|[^\d]+/g,'')"></td>
@@ -253,6 +253,7 @@ $def with (allCategory,materials)
 		var  materialId= document.getElementById("materialId");
 		var  materialName= document.getElementById("materialName");
 		var  materialUnit= document.getElementById("materialUnit");
+		var  materialSupplier= document.getElementById("supplier");
 		
 		$$.ajax({
 			type: "POST",
@@ -283,6 +284,7 @@ $def with (allCategory,materials)
 					alert("搜索失败！该类别下未查询到商品信息！");
 					materialId.value="";
 					materialUnit.value="";
+					materialSupplier.value="";
 					document.getElementById("materialCount").value="";
 					document.getElementById("materialPrice").value="";
 					document.getElementById("materialTotalPrice").value="";
@@ -309,6 +311,9 @@ $def with (allCategory,materials)
 							unit = msgJson.material[i].unit;
 							materialUnit.value=unit;
 							
+							//商品供应商更改
+							materialSupplier.value=msgJson.material[i].supplier;
+
 							//价格及数量复位
 							document.getElementById("materialCount").value=1;
 							document.getElementById("materialPrice").value=1;
@@ -356,6 +361,7 @@ $def with (allCategory,materials)
 		
 		var  categoryId= document.getElementById("categoryId").value;
 		var  materialName= document.getElementById("materialName").value;
+		var  materialSupplier= document.getElementById("supplier");
 		
 		$$.ajax({
 			type: "POST",
@@ -371,6 +377,9 @@ $def with (allCategory,materials)
 				}
 				else
 				{
+					//商品供应商更改
+					materialSupplier.value=msgJson.material[0].supplier;
+
 					// 编号更改
 					id = msgJson.material[0].material_id;
 					document.getElementById("materialId").value=id;
@@ -384,7 +393,6 @@ $def with (allCategory,materials)
 					document.getElementById("materialPrice").value=1;
 					document.getElementById("materialTaxPrice").value=1.13;
 				}
-				
 			});
 	});
 
