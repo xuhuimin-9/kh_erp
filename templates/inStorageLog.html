@@ -6,6 +6,13 @@ $def with (inStorageLogs)
 	</div>
 	<div class="pull-right" id="query-form" style="padding-bottom:10px;">
 		<div style="float:left;margin-right:5px;height:40px">
+			<select id="storageType" >
+				<option>全部</option>
+				<option>自动化</option>
+				<option>智能</option>
+			</select>
+		</div>
+		<div style="float:left;margin-right:5px;height:40px">
 			<select id="datetime" >
 				<option>本月</option>
 				<option>全部</option>
@@ -35,7 +42,7 @@ $def with (inStorageLogs)
 							<th>发票类型</th>
 							<th>税率</th>
 							<th>含税总价</th>
-							<th>操作时间</th>
+							<th>入库时间</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -87,14 +94,29 @@ $def with (inStorageLogs)
 	};
 	
 	$$('#btn_export').click(function(){
-		var  datetime= document.getElementById("datetime").value;
+		var storageType = document.getElementById("storageType").value;
+		var datetime = document.getElementById("datetime").value;
+		
 		var myDate = new Date((new Date).getTime() + 8*60*60*1000);
 		var time = myDate.toJSON().split('T').join(' ').substr(0,10); // 将1970/08/08转化成1970-08-08并取前10个
+		
+		if (storageType=="全部"){
+			filename="总库";
+		}
+		else if (storageType=="自动化"){
+			filename="自动化仓库";
+		}
+		else{
+			filename="智能仓库";
+		}
+		
+		filename = filename + datetime + "入库日志-" + time;
+		
 		$$.ajax({
 			type: "POST",
 			url: "/storageLogExport",
 			
-			data: JSON.stringify({type:"in",datetime:datetime,fileName:"InStorageLog-"+time})
+			data: JSON.stringify({type:"in",storage:storageType,datetime:datetime,fileName:filename})
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
 				alert(msgJson);

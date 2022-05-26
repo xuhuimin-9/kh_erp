@@ -186,15 +186,24 @@ def material_out_storage(current_material):
 
 # 导出指定时间段的入库日志内容
 def exportInStorageLog(data):
+    storage=data['storage']
     timeSlot=data['datetime']
     fileName=data['fileName']
 
     table_name="material_in_storage_log"
-
-    if(timeSlot == "本月"):
-        result=db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')", vars=locals())
-    elif(timeSlot == "全部"):
-        result=db.select(table_name, vars=locals())
+    if(storage == "全部"):
+        if(timeSlot == "本月"):
+            result=db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')",
+                             vars=locals())
+        elif(timeSlot == "全部"):
+            result=db.select(table_name, vars=locals())
+    else:
+        if (timeSlot == "本月"):
+            result = db.select(table_name,
+                               where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m') AND storage_name=$storage",
+                               vars=locals())
+        elif (timeSlot == "全部"):
+            result = db.select(table_name, where="storage_name=$storage",vars=locals())
 
     if(not result):
         return -1;  # 本月无操作
@@ -236,7 +245,8 @@ def exportInStorageLog(data):
 
     today=datetime.today()
     today=today.strftime("%Y/%m/%d")
-    work_book.save(fileName+".xls")
+    #work_book.save(fileName+".xls")
+    work_book.save(r"C:\Users\ASUS\Desktop\仓库管理系统导出日志\\" + fileName + ".xls")
     #work_book.save('StorageLog.xls')
     return 1
 
@@ -290,6 +300,7 @@ def exportOutStorageLog(data):
 
     today=datetime.today()
     today=today.strftime("%Y/%m/%d")
-    work_book.save(fileName+".xls")
+    #work_book.save(fileName+".xls")
+    work_book.save(r"C:\Users\ASUS\Desktop\仓库管理系统导出日志\"" + fileName + ".xls")
     #work_book.save('StorageLog.xls')
     return 1
