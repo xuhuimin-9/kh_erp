@@ -12,6 +12,7 @@ $def with (allCategory,materials,recentOperate)
 					<thead>
 						<tr>
 							<th>仓库</th>
+							<th>类别编号</th>
 							<th>类别名称</th>
 							<th>商品编号</th>
 							<th>商品名称</th>
@@ -31,6 +32,7 @@ $def with (allCategory,materials,recentOperate)
 						$for operate in recentOperate:
 							<tr>
 								<td>$operate.storage_name</td>
+								<td>$operate.category_id</td>
 								<td>$operate.category_name</td>
 								<td>/</td>
 								<td>$operate.name</td>
@@ -50,13 +52,17 @@ $def with (allCategory,materials,recentOperate)
 								<td><select id="storageName">
 									<option>自动化</option><option>智能</option>
 									</select></td>
+								<td>
+									$if allCategory :
+										<input id="categoryId" type="text" size="1" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
+								</td>
 								<td><select id="categoryName" >
 									$for value in allCategory:
 										<option>$value.name</option>
 								</select></td>
 								
 								<td>
-									$if allCategory :
+									$if materials :
 										<input id="materialId" type="text" size="4" name="material_id" readonly="readonly" value=$materials[0].material_id>
 								</td>
 								

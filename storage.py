@@ -116,7 +116,16 @@ def material_out_storage(current_material):
     if (not value):
         return -1  # 商品表中无该条信息
     # webpy的sql结果只能遍历一次，转为list可重复使用
-    material = list(value);
+    material = list(value)
+
+    # 该条商品入库信息的状态（入库时间一致且商品名称一致）
+    current_status = list(db.select("material_in_storage_log",
+                               where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
+                               vars=locals()))
+    if len(current_status) == 1 and current_status[0]['status'] == 0:
+        db.update("material_in_storage_log",
+                  where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
+                  vars=locals(),status=1) #更新状态标志位
 
     # 该条商品信息的当前信息
     current_count = material[0]['count'];

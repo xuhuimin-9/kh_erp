@@ -46,7 +46,8 @@ urls = (
     "/inStorageLog", "InStorageLog",
     "/outStorageLog", "OutStorageLog",
     "/storageLogExport", "StorageLogExport",
-    "/projecInfo", "ProjecInfo"
+    "/projecInfo", "ProjecInfo",
+    "/deleteInStorageLog/(\d+)", "DeleteInStorageLog"
 
 
 )
@@ -183,6 +184,14 @@ class DeleteProject:
     def POST(self, id):
         model.delete_info_from_table("kh_project", id)
         raise web.seeother("/project")
+
+# 删除入库记录(根据唯一id号找到入库日志表中，并将status改为-1【已删除】)
+class DeleteInStorageLog:
+    def POST(self,id):
+        model.delete_in_storage_log(id)
+        raise web.seeother("/inStorageLog")
+
+
 
 # 库存信息
 class StorageInfo:

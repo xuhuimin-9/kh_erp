@@ -43,6 +43,7 @@ $def with (inStorageLogs)
 							<th>税率</th>
 							<th>含税总价</th>
 							<th>入库时间</th>
+							<th>操作</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -59,6 +60,16 @@ $def with (inStorageLogs)
 								<td>$log.tax_rate</td>
 								<td>$log.tax_price</td>
 								<td>$log.create_time</td>
+								<td>
+									$if log.status == 0:
+										<form action="/deleteInStorageLog/$log.id" method="post" onsubmit="return confirm('是否确认删除吗？');">
+												<input type="submit" class="btn btn-warning" value="删除"/>
+										</form>
+									$elif log.status == 1:
+										已出库
+									$elif log.status == -1:
+										已手动删除
+								</td>
 							</tr>
 					</tbody>
 				</table>

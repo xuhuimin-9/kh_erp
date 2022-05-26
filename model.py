@@ -118,3 +118,16 @@ def check_project_info(new_project):
 
 def delete_info_from_table(table_name,id):
     db.delete(table_name, where="ID=$id", vars=locals())
+
+def delete_in_storage_log(id):
+    # 将未出库的日志标志位置-1【已删除】
+    table_name="material_in_storage_log"
+    in_storage_log = list(db.select(table_name,where="id=$id AND status=0", vars=locals()))
+    if len(in_storage_log)==1:
+        db.update(table_name,where="id=$id AND status=0",vars=locals(),status=-1)
+        table_name="material_io_storage_info"
+        # 将库存表中该条库存记录库存置0（下发时间一致且商品名称一致且数量一致）
+        io_material=db.update(table_name,
+                              where="create_time=$in_storage_log[0]['create_time'] AND name=$in_storage_log[0]['name']"
+                                    +" AND count=$in_storage_log[0]['count']"
+                              , vars=locals(), count=-1)
