@@ -444,10 +444,16 @@ class SearchMaterial:
         searchMaterial_number = len(searchMaterial)
 
         totalCount = 0
-        totalPrice = 0  # 含税总价计算
+        totalPrice = 0  # 总价计算【区分专普票】
         for i in range(0,searchMaterial_number):
-            value = searchMaterial[i]['tax_price']
+            # 专票不含税
+            if(searchMaterial[i]['invoice_type']=="专票"):
+                value = searchMaterial[i]['price'] * int(searchMaterial[i]['count'])
+            else:
+                value = searchMaterial[i]['tax_price']
+
             totalPrice = totalPrice + value
+
             value = searchMaterial[i]['count']
             totalCount = totalCount + value
         totalPrice = format(totalPrice, '.2f')
