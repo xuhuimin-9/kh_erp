@@ -47,7 +47,8 @@ urls = (
     "/outStorageLog", "OutStorageLog",
     "/storageLogExport", "StorageLogExport",
     "/projecInfo", "ProjecInfo",
-    "/deleteInStorageLog/(\d+)", "DeleteInStorageLog"
+    "/deleteInStorageLog/(\d+)", "DeleteInStorageLog",
+    "/storageLogfilter", "StorageLogfilter"
 
 
 )
@@ -509,6 +510,24 @@ class StorageLogExport:
         elif (status==-1):
             result = "未查询到操作！生成失败！"
         return json.dumps(result, cls=ComplexEncoder)
+
+class StorageLogfilter:
+    def POST(self):
+        data = json.loads(web.data())
+        # 入库日志筛选
+        if (data['type'] == "in"):
+            log = storage.filterInStorageLog(data)
+        # 出库日志筛选
+        elif (data['type'] == "out"):
+            log = storage.filterOutStorageLog(data)
+
+        result = {}
+
+        result['msg'] = 'SUCCESS'
+        result['filter_log'] = log
+
+        return json.dumps(result, cls=ComplexEncoder)
+
 
 
 app = web.application(urls, globals())

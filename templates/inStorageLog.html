@@ -19,7 +19,9 @@ $def with (inStorageLogs)
 			</select>
 		</div>
 		<div class="btn-group">
-			
+			<button id="btn_filter"  type="button" class="btn btn-primary btn-space" >
+				筛选
+			</button>
 			<button id="btn_export"  type="button" class="btn btn-primary btn-space" >
 				导出
 			</button>
@@ -46,7 +48,7 @@ $def with (inStorageLogs)
 							<th>操作</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody id="logTbody">
 						$for log in inStorageLogs:
 							<tr>
 								<td>$log.id</td>
@@ -131,6 +133,84 @@ $def with (inStorageLogs)
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
 				alert(msgJson);
+			});
+	
+	});
+	
+	$$('#btn_filter').click(function(){
+		var storageType = document.getElementById("storageType").value;
+		var datetime = document.getElementById("datetime").value;
+
+		$$.ajax({
+			type: "POST",
+			url: "/storageLogfilter",
+
+			data: JSON.stringify({type:"in",storage:storageType,datetime:datetime})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+
+				var logs = msgJson["filter_log"];
+				var number = logs.length;
+
+				//获得显示日志信息的表格 并根据条件筛选更新表格
+				var tableLog = document.getElementById("logTbody");
+
+				while (tableLog.hasChildNodes()) {
+				  tableLog.removeChild(tableLog.lastChild);
+				}
+
+				for( var i = 0 ; i < number ; i++ )
+				{
+
+					var tr = tableLog.insertRow(-1);		//在最后增加一行
+
+					var tdId = tr.insertCell(-1);	//在最后增加一列
+					tdId.innerHTML = logs[i].id;
+
+					var tdStorageName = tr.insertCell(-1);
+					tdStorageName.innerHTML = logs[i].storage_name;
+
+					var tdCategoryName = tr.insertCell(-1);
+					tdCategoryName.innerHTML = logs[i].category_name;
+
+					var tdName = tr.insertCell(-1);
+					tdName.innerHTML = logs[i].name;
+
+					var tdUnit = tr.insertCell(-1);
+					tdUnit.innerHTML = logs[i].unit;
+
+					var tdCount = tr.insertCell(-1);
+					tdCount.innerHTML = logs[i].count;
+
+					var tdCount = tr.insertCell(-1);
+					tdCount.innerHTML = logs[i].price;
+
+					var tdInvoice = tr.insertCell(-1);
+					tdInvoice.innerHTML = logs[i].invoice_type;
+
+					var tdTax = tr.insertCell(-1);
+					tdTax.innerHTML = logs[i].tax_rate;
+
+					var tdTaxPrice = tr.insertCell(-1);
+					tdTaxPrice.innerHTML = logs[i].tax_price;
+
+					var tdTime = tr.insertCell(-1);
+					tdTime.innerHTML = logs[i].create_time;
+
+					var tdOperate = tr.insertCell(-1);
+					if(logs[i].status == 0 ){
+						tdOperate.innerHTML="<form action='/deleteInStorageLog/$log.id' method='post' onsubmit='return confirm('是否确认删除吗？');'>"
+												+"<input type='submit' class='btn btn-warning' value='删除'/></form>";
+					}
+					else if (logs[i].status == 1){
+						tdOperate.innerHTML="已出库";
+					}
+					else{
+						tdOperate.innerHTML="已手动删除";
+					}
+
+				}
+
 			});
 	
 	});

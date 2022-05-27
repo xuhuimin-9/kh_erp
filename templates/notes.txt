@@ -19,11 +19,19 @@
 								<!-- </td> -->
 							<!-- </tr> -->
 							
+出库增加申领仓库选择
+					<div class="col-sm-2" >
+						<h4>请选择所申请的仓库</h4>
+						<select id="projectName" style="width:160px;height:90px;border:3px #cccccc dashed; font-size:20px">
+							<option>自动化</option><option>智能</option>
+						</select>
+					</div>
+							
 					
 入库日志部分（inStorageLog.html的表格）
 原先是直接后端传过来后直接显示出来
 考虑到要筛选和分页
-尝试采用bootstrapTable框架
+尝试采用bootstrapTable插件
 				<table id="inLogTable" class="table table-striped">
 					<thead>
 						<tr>

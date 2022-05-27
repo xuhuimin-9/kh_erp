@@ -321,3 +321,52 @@ def exportOutStorageLog(data):
     #work_book.save(fileName+".xls")
     work_book.save(r"C:\Users\ASUS\Desktop\仓库管理系统导出日志\\" + fileName + ".xls")
     return 1
+
+# 筛选指定时间段的入库日志内容
+def filterInStorageLog(data):
+    storage=data['storage']
+    timeSlot=data['datetime']
+
+    table_name = "material_in_storage_log"
+    #未指定仓库
+    if (storage == "全部"):
+        if (timeSlot == "本月"):
+            result = list(db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')",
+                               vars=locals()))
+        elif (timeSlot == "全部"):
+            result = list(db.select(table_name, vars=locals()))
+    #指定仓库
+    else:
+        if (timeSlot == "本月"):
+            result = list(db.select(table_name,
+                               where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m') AND storage_name=$storage",
+                               vars=locals()))
+        elif (timeSlot == "全部"):
+            result = list(db.select(table_name, where="storage_name=$storage", vars=locals()))
+
+    return result
+
+
+# 筛选指定时间段的入库日志内容
+def filterOutStorageLog(data):
+    storage = data['storage']
+    timeSlot = data['datetime']
+
+    table_name = "material_out_storage_log"
+    #未指定仓库
+    if (storage == "全部"):
+        if (timeSlot == "本月"):
+            result = list(db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')",
+                               vars=locals()))
+        elif (timeSlot == "全部"):
+            result = list(db.select(table_name, vars=locals()))
+    #指定仓库
+    else:
+        if (timeSlot == "本月"):
+            result = list(db.select(table_name,
+                               where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m') AND storage_name=$storage",
+                               vars=locals()))
+        elif (timeSlot == "全部"):
+            result = list(db.select(table_name, where="storage_name=$storage", vars=locals()))
+
+    return result

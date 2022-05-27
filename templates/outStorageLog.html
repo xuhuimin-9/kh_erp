@@ -19,7 +19,9 @@ $def with (outStorageLogs)
 			</select>
 		</div>
 		<div class="btn-group">
-			
+			<button id="btn_filter"  type="button" class="btn btn-primary btn-space" >
+				筛选
+			</button>
 			<button id="btn_export"  type="button" class="btn btn-primary btn-space" >
 				导出
 			</button>
@@ -34,7 +36,6 @@ $def with (outStorageLogs)
 							<th>编号</th>
 							<th>仓库</th>
 							<th>类别名称</th>
-							<th>商品编号</th>
 							<th>商品名称</th>
 							<th>商品单位</th>
 							<th>出库数量</th>
@@ -47,13 +48,12 @@ $def with (outStorageLogs)
 							<th>操作时间</th>
 						</tr>
 					</thead>
-					<tbody id="outLogTable">
+					<tbody id="logTbody">
 						$for log in outStorageLogs:
 							<tr>
 								<td>$log.id</td>
 								<td>$log.storage_name</td>
 								<td>$log.category_name</td>
-								<td>$log.material_id</td>
 								<td>$log.name</td>
 								<td>$log.unit</td>
 								<td>$log.count</td>
@@ -101,6 +101,78 @@ $def with (outStorageLogs)
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
 				alert(msgJson);
+			});
+	
+	});
+
+	$$('#btn_filter').click(function(){
+		var storageType = document.getElementById("storageType").value;
+		var datetime = document.getElementById("datetime").value;
+
+		$$.ajax({
+			type: "POST",
+			url: "/storageLogfilter",
+
+			data: JSON.stringify({type:"out",storage:storageType,datetime:datetime})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+
+				var logs = msgJson["filter_log"];
+				var number = logs.length;
+
+				//获得显示日志信息的表格 并根据条件筛选更新表格
+				var tableLog = document.getElementById("logTbody");
+
+				while (tableLog.hasChildNodes()) {
+				  tableLog.removeChild(tableLog.lastChild);
+				}
+
+				for( var i = 0 ; i < number ; i++ )
+				{
+
+					var tr = tableLog.insertRow(-1);		//在最后增加一行
+
+					var tdId = tr.insertCell(-1);	//在最后增加一列
+					tdId.innerHTML = logs[i].id;
+
+					var tdStorageName = tr.insertCell(-1);
+					tdStorageName.innerHTML = logs[i].storage_name;
+
+					var tdCategoryName = tr.insertCell(-1);
+					tdCategoryName.innerHTML = logs[i].category_name;
+
+					var tdName = tr.insertCell(-1);
+					tdName.innerHTML = logs[i].name;
+
+					var tdUnit = tr.insertCell(-1);
+					tdUnit.innerHTML = logs[i].unit;
+
+					var tdCount = tr.insertCell(-1);
+					tdCount.innerHTML = logs[i].count;
+
+					var tdCount = tr.insertCell(-1);
+					tdCount.innerHTML = logs[i].price;
+
+					var tdInvoice = tr.insertCell(-1);
+					tdInvoice.innerHTML = logs[i].invoice_type;
+
+					var tdTax = tr.insertCell(-1);
+					tdTax.innerHTML = logs[i].tax_rate;
+
+					var tdTotalPrice = tr.insertCell(-1);
+					tdTotalPrice.innerHTML = logs[i].total_price;
+
+					var tdTaxPrice = tr.insertCell(-1);
+					tdTaxPrice.innerHTML = logs[i].tax_price;
+
+					var tdProject = tr.insertCell(-1);
+					tdProject.innerHTML = logs[i].project;
+
+					var tdTime = tr.insertCell(-1);
+					tdTime.innerHTML = logs[i].create_time;
+
+				}
+
 			});
 	
 	});
