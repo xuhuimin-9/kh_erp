@@ -28,6 +28,7 @@ urls = (
     "/deleteMaterial/(\d+)" , "DeleteMaterial",
     "/deleteCategory/(\d+)" , "DeleteCategory",
     "/deleteProject/(\d+)" , "DeleteProject",
+    "/deleteInStorageLog/(\d+)", "DeleteInStorageLog",
 
     "/storageInfo", "StorageInfo",
     "/inStorage", "InStorage",
@@ -42,13 +43,14 @@ urls = (
     "/filterMaterial", "FilterMaterial",
     "/searchMaterial" , "SearchMaterial",
     "/typeChange", "TypeChange",
-    "/export", "Export",
+
     "/inStorageLog", "InStorageLog",
     "/outStorageLog", "OutStorageLog",
     "/storageLogExport", "StorageLogExport",
+    "/storageLogfilter", "StorageLogfilter",
+    
     "/projecInfo", "ProjecInfo",
-    "/deleteInStorageLog/(\d+)", "DeleteInStorageLog",
-    "/storageLogfilter", "StorageLogfilter"
+    "/materialBorrow", "MaterialBorrow"
 
 
 )
@@ -468,13 +470,6 @@ class SearchMaterial:
 
         return json.dumps(result,cls=ComplexEncoder)
 
-# 导出模块
-class Export:
-    def GET(self):
-
-        time.sleep(0.5)
-        return render.Export()
-
 # 入库日志模块
 class InStorageLog:
     def GET(self):
@@ -525,6 +520,21 @@ class StorageLogfilter:
 
         result['msg'] = 'SUCCESS'
         result['filter_log'] = log
+
+        return json.dumps(result, cls=ComplexEncoder)
+
+class MaterialBorrow:
+    def GET(self):
+        table="material_out_storage_log"
+        borrowLogs = list(db.select(table,where="credit_storage!=storage_name",vars=locals()))
+        return render.MaterialBorrow(borrowLogs)
+    def POST(self):
+        info = json.loads(web.data())
+        material = storage.filterStorakBorrowinfo(info)
+
+        result = {}
+
+        result['stock_info'] = material
 
         return json.dumps(result, cls=ComplexEncoder)
 

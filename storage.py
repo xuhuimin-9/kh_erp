@@ -373,3 +373,20 @@ def filterOutStorageLog(data):
             result = list(db.select(table_name, where="storage_name=$storage", vars=locals()))
 
     return result
+
+# 筛选仓库中符合还货要求的商品信息
+def filterStorakBorrowinfo(data):
+    # 欠货的仓库
+    credit_storage = data['storage']
+    # 欠货数量
+    count = data['count']
+    # 商品类型
+    category = data['category']
+    # 商品名称
+    material = data['material']
+
+    table_name = "material_io_storage_info"
+    result = list(db.select(table_name,
+                       where="category_name=$category AND name=$material AND storage_name=$credit_storage AND count>=$count",
+                       vars=locals()))
+    return result

@@ -1,0 +1,212 @@
+$def with (borrowLogs)
+
+<div class="container">
+	<div class="jumbotron">
+		<img src="https://cdn-icons-png.flaticon.com/512/1753/1753926.png" width="80px"  alt="货物返回"><h1  style="display : inline;vertical-align: middle">		货物返回</h1>
+	</div>
+	<div class="row">
+		<div class="col-sm-12">
+			<div id="project" class="bs-example">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>编号</th>
+							<th>申领项目</th>
+							<th>申领仓库</th>
+							<th>实际仓库</th>
+							<th>类别名称</th>
+							<th>商品名称</th>
+							<th>商品单位</th>
+							<th>出库数量</th>
+							<th>出库单价</th>
+							<th>发票类型</th>
+							<th>税率</th>
+							<th>出库总价</th>
+							<th>含税总价</th>
+							<th>操作时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="logTbody">
+						$for log in borrowLogs:
+							<tr>
+								<td>$log.id</td>
+								<td>$log.project</td>
+								<td class="credit_storage">$log.credit_storage</td>
+								<td >$log.storage_name</td>
+								<td class="category_name">$log.category_name</td>
+								<td class="material_name">$log.name</td>
+								<td>$log.unit</td>
+								<td class="credit_count">$log.count</td>
+								<td>$log.price</td>
+								<td>$log.invoice_type</td>
+								<td>$log.tax_rate</td>
+								<td>$log.total_price</td>
+								<td>$log.tax_price</td>
+								<td>$log.create_time</td>
+								<td>
+									<button class="btn btn-success" data-toggle="modal" data-target="#stockInfo" onclick="getStockInfo(this)" >还货</button>
+								</td>
+							</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 项目详情模态框（Modal） -->
+	<div class="modal fade" id="stockInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h3 class="modal-title" id="materialTitle">详情</h3>
+				</div>
+				<div class="modal-body">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>仓库</th>
+								<th>商品名称</th>
+								<th>供应商</th>
+								<th>库存数量</th>
+								<th>未税价格</th>
+								<th>发票类型</th>
+								<th>单个价格</th>
+								<th>含税总价</th>
+								<th>入库时间</th>
+							</tr>
+						</thead>
+						<tbody id="stockTable">
+						
+						
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<script type="text/javascript">
+	$$('#btn_export').click(function(){
+		var storageType = document.getElementById("storageType").value;
+		var datetime= document.getElementById("datetime").value;
+		
+		var myDate = new Date((new Date).getTime() + 8*60*60*1000);
+		var time = myDate.toJSON().split('T').join(' ').substr(0,10); // 将1970/08/08转化成1970-08-08并取前10个
+		
+		if (storageType=="全部"){
+			filename="总库";
+		}
+		else if (storageType=="自动化"){
+			filename="自动化仓库";
+		}
+		else{
+			filename="智能仓库";
+		}
+		
+		filename = filename + datetime + "出库日志-" + time;
+		
+		$$.ajax({
+			type: "POST",
+			url: "/storageLogExport",
+			data: JSON.stringify({type:"out",storage:storageType,datetime:datetime,fileName:filename})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				alert(msgJson);
+			});
+	
+	});
+
+	// js乘法为16位精度，转换为2位小数点
+	function multiplyFloat(arg1, arg2) {
+		let m = 0;
+		const arg1Str = arg1 + '';
+		const arg2Str = arg2 + '';
+		const arg1StrFloat = arg1Str.split('.')[1];
+		const arg2StrFloat = arg2Str.split('.')[1];
+		arg1StrFloat && (m += arg1StrFloat.length);
+		arg2StrFloat && (m += arg2StrFloat.length);
+		const transferResult = +(arg1Str.replace('.', '')) * +(arg2Str.replace('.', ''));
+		return transferResult / Math.pow(10, m);;
+	};
+	
+	function getStockInfo(val){
+		
+		var category=$$(val).parent().parent().find(".category_name").text();
+		var material=$$(val).parent().parent().find(".material_name").text();
+		var count = $$(val).parent().parent().find(".credit_count").text();
+		//欠货的仓库
+		var storage = $$(val).parent().parent().find(".credit_storage").text();
+		
+		//模态框 用来显示符合还货要求的货物信息
+		var tableStock = document.getElementById("stockTable");
+		
+		$$.ajax({
+			type: "POST",
+			url: "/materialBorrow",
+			data: JSON.stringify({category:category,material:material,count:count,storage:storage})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+				//模态框 清除信息
+				while (tableStock.hasChildNodes()) {
+				  tableStock.removeChild(tableStock.lastChild);
+				}
+				
+				var material = msgJson["stock_info"];
+				var number = material.length;
+				
+				for(var i = 0 ; i < number ; i++ )
+				{
+					var tr = tableStock.insertRow(-1);
+					
+					var tdStorageName = tr.insertCell(-1);
+					tdStorageName.innerHTML = material[i]['storage_name'];
+					
+					var tdMaterialName = tr.insertCell(-1);
+					tdMaterialName.innerHTML = material[i]['name'];
+					
+					var tdSupplier = tr.insertCell(-1);
+					tdSupplier.innerHTML = material[i]['supplier'];
+					
+					var tdCount = tr.insertCell(-1);	
+					tdCount.innerHTML = material[i]['count'];
+					
+					var tdPrice = tr.insertCell(-1);	
+					tdPrice.innerHTML = material[i]['price'];
+					
+					var tdInvoice = tr.insertCell(-1);	
+					tdInvoice.innerHTML = material[i]['invoice_type'];
+					
+					var tdTax = tr.insertCell(-1);
+					if(material[i]['invoice_type']=="专票"){
+						var value = material[i]['price']
+					}
+					else{
+						var value = multiplyFloat(material[i]['price'] , (1 + material[i]['tax_rate']));
+					}
+					tdTax.innerHTML = value;
+					
+					var tdTaxPrice = tr.insertCell(-1);	
+					tdTaxPrice.innerHTML = material[i]['tax_price'];
+					
+					var tdInTime = tr.insertCell(-1);	
+					tdInTime.innerHTML = material[i]['create_time'];
+
+				}
+			});
+	
+	}
+	
+	
+</script>
