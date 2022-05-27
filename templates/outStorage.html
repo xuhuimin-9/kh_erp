@@ -21,10 +21,11 @@ $def with (allCategory,materials,projects)
 						</select>
 
 						<h4 style="display : inline">	申领仓库</h4>
-						<select id="storageName" class="form-control form-control-placeholder" style="display : inline;width:auto;">
+						<select id="creditStorage" class="form-control form-control-placeholder" style="display : inline;width:auto;">
 							<option value="-1" disabled selected hidden>请选择</option>
 							<option>自动化</option><option>智能</option>
 						</select>
+						
 						<h4 style="display : inline">类别编号</h4>
 						$if allCategory :
 							<input id="categoryId" type="text" size="3" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
@@ -132,16 +133,20 @@ $def with (allCategory,materials,projects)
 		}
 
 		var project=document.getElementById("projectName").value;
-		var project=document.getElementById("projectName").value;
+		var creditStorage=document.getElementById("creditStorage").value;
 		
 		$$.ajax({
 			type: "POST",
 			url: "/outStorage",
-			data: JSON.stringify({id:id,outCount:count,project:project})
+			
+			//向后端传送该商品的唯一id，出库数量，申领项目，申领仓库
+			data: JSON.stringify({id:id,outCount:count,project:project,creditStorage:creditStorage})
 			}).done(function( msg ) {
 				alert(msg);
+				
 				//获得显示库存信息的表格
 				var table = document.getElementById("storageTable");
+				
 				// 清空当前table的所有数据
 				while (table.hasChildNodes()) {
 				  table.removeChild(table.lastChild);

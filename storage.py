@@ -109,6 +109,8 @@ def material_out_storage(current_material):
     outCount = current_material['outCount']
     # 所用项目
     project = current_material['project']
+    # 申领仓库
+    credit_storage = current_material['creditStorage']
 
     '''     1.更新库存信息【数量、含税总价】        '''
     table_name = "material_io_storage_info";
@@ -127,9 +129,9 @@ def material_out_storage(current_material):
                   where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
                   vars=locals(),status=1) #更新状态标志位
 
-    # 该条商品信息的当前信息
-    current_count = material[0]['count'];
-    new_count = int(current_count) - int(outCount);# 当前数量减去出库数量
+    # 该条商品信息的当前库存
+    current_count = material[0]['count']
+    new_count = int(current_count) - int(outCount)  # 当前数量减去出库数量
 
     # 该条商品的入库含税总价
     current_tax_price = material[0]['tax_price'];
@@ -166,25 +168,26 @@ def material_out_storage(current_material):
     status = db.insert(
         table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=material_name,
         unit=unit,count=outCount, price=price, invoice_type=invoice, tax_rate=tax, total_price=total_price,
-        tax_price=tax_price,project=project,storage_name=storage,supplier=supplier
+        tax_price=tax_price,project=project,storage_name=storage,supplier=supplier,credit_storage=credit_storage
     )
     if (not status):
         return -4  # 插入material_in_storage_log失败
 
     '''     3.更新到项目表中 material_id字段值 【含义：商品id 商品名 商品数量 出库时间】        '''
-    table_name = "kh_project"
 
     # 包含当前日期和时间的datetime对象
-    now = datetime.now()
+    #now = datetime.now()
     # dd/mm/YY H:M:S
-    dt_string = now.strftime("%Y/%m/%d-%H:%M:%S")
+    #dt_string = now.strftime("%Y/%m/%d-%H:%M:%S")
 
+    #table_name = "kh_project"
     #value = db.select(table_name, where="name=$project", vars=locals())[0]['material_id']
     #value = value + str(material_id) + " " + material_name + " " + outCount + " " + dt_string +";"
 
     #status = db.update(table_name, where="name=$project",vars=locals(), material_id=value)
     #if (not status):
     #    return -5  # 插入kh_project失败
+
     # [项目名称 商品id 商品名称 出库数量 出库单价(区分专普) 出库税率 出库未税总价 出库含税总价 仓库名称]
     table_name = "kh_project_material"
     status = db.insert(table_name, project_name=project, material_id=material_id, material_name=material_name,
