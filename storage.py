@@ -171,9 +171,9 @@ def material_out_storage(current_material):
     table_name = "material_out_storage_log"
     # 如申领仓库与实际仓库一致，则正常出库
     if(storage==apply_storage):
-        statusValue="normal"
+        statusValue="NL"
     else:
-        statusValue="borrow"
+        statusValue="BORROW"
     status = db.insert(table_name,
                        category_id=category_id, category_name=category_name, material_id=material_id,
                        name=material_name,unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
@@ -451,7 +451,7 @@ def material_returned_info(data):
     storage = borrow_info['storage_name']
     borrow_storage = borrow_info['apply_storage']
     batch = borrow_info['material_batch']
-    statusValue="return-"+borrow_id     #数据库记录还的哪一笔
+    statusValue="RETURN-"+str(borrow_id)     #数据库记录还的哪一笔
     status = db.insert(table_name,
                        category_id=category_id, category_name=category_name, material_id=material_id,
                        name=material_name, unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
@@ -499,7 +499,7 @@ def material_returned_info(data):
         return -3      #更新出库日志出错
 
     '''     3更新该日志消息为已还     '''
-    status = db.update("material_out_storage_log",where="id=$borrow_id",vars=locals(),status="returned")
+    status = db.update("material_out_storage_log",where="id=$borrow_id",vars=locals(),status="RETURNED")
     if (not status):
         return 0
     return 1
