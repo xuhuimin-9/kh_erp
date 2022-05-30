@@ -120,14 +120,15 @@ def material_out_storage(current_material):
     # webpy的sql结果只能遍历一次，转为list可重复使用
     material = list(value)
 
+    '''     更改该条入库信息状态，不允许删除        '''
     # 该条商品入库信息的状态（入库时间一致且商品名称一致）
     current_status = list(db.select("material_in_storage_log",
-                               where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
-                               vars=locals()))
+                                    where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
+                                    vars=locals()))
     if len(current_status) == 1 and current_status[0]['status'] == 0:
         db.update("material_in_storage_log",
                   where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
-                  vars=locals(),status=1) #更新状态标志位
+                  vars=locals(), status=1)  # 更新状态标志位
 
     # 该条商品信息的当前库存
     current_count = material[0]['count']
@@ -143,7 +144,9 @@ def material_out_storage(current_material):
 
 
     '''     2.存入出库日志表       '''
-    print(material[0])
+    # 该条入库记录的入库时间 当作批次号
+    batch=material[0]['create_time']
+
     category_id = material[0]['category_id']
     category_name = material[0]['category_name']
     material_id = material[0]['material_id']
@@ -154,6 +157,7 @@ def material_out_storage(current_material):
     invoice = material[0]['invoice_type']
     storage = material[0]['storage_name']
     supplier = material[0]['supplier']
+
     value = float(Decimal(str(1 + tax)) * Decimal(str(price)))  #单个含税价
     tax_price = float(Decimal(str(value * int(outCount))))      #含税总价
 
@@ -165,11 +169,12 @@ def material_out_storage(current_material):
         total_price = tax_price
 
     table_name = "material_out_storage_log"
-    status = db.insert(
-        table_name, category_id=category_id, category_name=category_name, material_id=material_id, name=material_name,
-        unit=unit,count=outCount, price=price, invoice_type=invoice, tax_rate=tax, total_price=total_price,
-        tax_price=tax_price,project=project,storage_name=storage,supplier=supplier,credit_storage=credit_storage
-    )
+    status = db.insert(table_name,
+                       category_id=category_id, category_name=category_name, material_id=material_id,
+                       name=material_name,unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
+                       total_price=total_price,tax_price=tax_price, project=project, storage_name=storage,
+                       supplier=supplier,credit_storage=credit_storage, material_batch=batch
+                       )
     if (not status):
         return -4  # 插入material_in_storage_log失败
 
@@ -197,7 +202,7 @@ def material_out_storage(current_material):
     return 1;
 
 # 导出指定时间段的入库日志内容
-def exportInStorageLog(data):
+def export_in_storage_log(data):
     storage=data['storage']
     timeSlot=data['datetime']
     fileName=data['fileName']
@@ -262,7 +267,7 @@ def exportInStorageLog(data):
     return 1
 
 # 导出指定时间段的出库日志内容
-def exportOutStorageLog(data):
+def export_out_storage_log(data):
     storage = data['storage']
     timeSlot=data['datetime']
     fileName=data['fileName']
@@ -326,7 +331,7 @@ def exportOutStorageLog(data):
     return 1
 
 # 筛选指定时间段的入库日志内容
-def filterInStorageLog(data):
+def filter_in_storage_log(data):
     storage=data['storage']
     timeSlot=data['datetime']
 
@@ -351,7 +356,7 @@ def filterInStorageLog(data):
 
 
 # 筛选指定时间段的入库日志内容
-def filterOutStorageLog(data):
+def filter_out_storage_log(data):
     storage = data['storage']
     timeSlot = data['datetime']
 
@@ -375,7 +380,7 @@ def filterOutStorageLog(data):
     return result
 
 # 筛选仓库中符合还货要求的商品信息
-def filterStorakBorrowinfo(data):
+def filter_stock_borrow_info(data):
     # 欠货的仓库
     credit_storage = data['storage']
     # 欠货数量
@@ -390,3 +395,133 @@ def filterStorakBorrowinfo(data):
                        where="category_name=$category AND name=$material AND storage_name=$credit_storage AND count>=$count",
                        vars=locals()))
     return result
+
+# 还货功能
+def material_borrow_info(data):
+
+    # 借货出库的出库记录id
+    credit_id = data['credit_id']
+
+    # 用来还货的库存记录id
+    stock_id = data['stock_id']
+
+    table_name="material_out_storage_log"
+    result = list(db.select(table_name,where="id=$credit_id",vars=locals()))
+
+    credit_info = result[0]
+
+    credit_count = credit_info['count']           # 借货数量
+    credit_material = credit_info['name']         # 借货商品
+    credit_supplier = credit_info['supplier']     # 借货供应商
+    credit_batch = credit_info['material_batch']  # 借货批次
+
+
+    '''     1.将调货的那笔库存，加回去      '''
+    '''     1.1 通过批次（时间戳）来找到当时借用的哪一笔材料      '''
+    table_name="material_io_storage_info"
+    result = list(db.select(table_name,where="create_time=$credit_batch AND name=$credit_material",vars=locals()))
+    if(len(result)==1):
+        new_count = result[0]['count']+credit_count
+        new_tax_price = float(Decimal(str(result[0]['tax_price'] / result[0]['count'] * new_count)))
+        db.update(table_name,where="create_time=$credit_batch AND name=$credit_material",
+                  vars=locals(),count=new_count,tax_price=new_tax_price)
+    else:
+        return -1   # 库存更新出错
+
+    '''     1.2 存入出库日志表(将借货出库的那笔日志只更改数量再次存储)     '''
+    table_name = "material_out_storage_log"
+    category_id = credit_info['category_id']
+    category_name = credit_info['category_name']
+    material_id = credit_info['material_id']
+    material_name = credit_info['name']
+    unit = credit_info['unit']
+    outCount = -credit_count
+    price = credit_info['price']
+    invoice = credit_info['invoice_type']
+    tax = credit_info['tax_rate']
+    total_price = credit_info['total_price']
+    tax_price = credit_info['tax_price']
+    project=credit_info['project']
+    supplier=credit_info['supplier']
+    storage = credit_info['storage_name']
+    credit_storage = credit_info['credit_storage']
+    batch = credit_info['material_batch']
+    status = db.insert(table_name,
+                       category_id=category_id, category_name=category_name, material_id=material_id,
+                       name=material_name, unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
+                       total_price=total_price, tax_price=tax_price, project=project, storage_name=storage,
+                       supplier=supplier, credit_storage=credit_storage, material_batch=batch
+                       )
+
+
+    '''     2.更改还货的那条库存信息        '''
+
+    table_name = "material_io_storage_info"
+    # 用还还货的那条库存信息
+    stock_material = list(db.select(table_name, where="id=$stock_id", vars=locals()))
+
+    '''     2.1更新该条入库信息状态，不允许删除        '''
+    # 该条商品入库信息的状态（入库时间一致且商品名称一致，库存数量与入库数量一致）
+    current_status = list(db.select("material_in_storage_log",
+                                    where="create_time=$stock_material[0]['create_time'] AND name=$stock_material[0]['name'] AND count=$stock_material[0]['count']",
+                                    vars=locals()))
+    # 0未出过库 1已出库 -1已手动删除
+    if len(current_status) == 1 and current_status[0]['status'] == 0:
+        db.update("material_in_storage_log",
+                  where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
+                  vars=locals(), status=1)  # 更新状态标志位
+
+    '''     2.2还货的这笔库存减少        '''
+
+    # 计算该条商品信息的扣减完的库存
+    current_count = stock_material[0]['count']
+    new_count = int(current_count) - int(credit_count)  # 当前数量减去出库数量
+
+    # 计算该条商品的最新入库含税总价
+    current_tax_price = stock_material[0]['tax_price']
+    new_tax_price = current_tax_price / current_count * new_count  # 获得原先含税单价并乘上现有个数
+
+    status = db.update(table_name, where="id=$stock_id", vars=locals(), count=new_count, tax_price=new_tax_price)
+    if (not status):
+        return -2;  # kh_material更新失败
+
+
+    '''     2.3更新出库日志       '''
+    update_material_out_log(stock_material,credit_count,project)
+
+    return
+
+def update_material_out_log(stock_material,credit_count,project):
+
+    table_name = "material_out_storage_log"
+    stock_material_info = stock_material[0]
+
+    batch = stock_material_info['create_time']
+    category_id = stock_material_info['category_id']
+    category_name = stock_material_info['category_name']
+    material_id = stock_material_info['material_id']
+    material_name = stock_material_info['name']
+    unit = stock_material_info['unit']
+    outCount = credit_count
+    price = stock_material_info['price']
+    tax = stock_material_info['tax_rate']
+    invoice = stock_material_info['invoice_type']
+    storage = stock_material_info['storage_name']
+    supplier = stock_material_info['supplier']
+
+    value = float(Decimal(str(1 + tax)) * Decimal(str(price)))  # 单个含税价
+    tax_price = float(Decimal(str(value * int(outCount))))  # 含税总价
+
+    # 专票商品出库时的金额采用入库的未税单价金额
+    if (stock_material_info['invoice_type'] == "专票"):
+        total_price = float(Decimal(str(price * int(outCount))))
+    else:
+        price = value
+        total_price = tax_price
+
+    status = db.insert(table_name,
+                       category_id=category_id, category_name=category_name, material_id=material_id,
+                       name=material_name, unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
+                       total_price=total_price, tax_price=tax_price, project=project, storage_name=storage,
+                       supplier=supplier, credit_storage=storage, material_batch=batch
+                       )

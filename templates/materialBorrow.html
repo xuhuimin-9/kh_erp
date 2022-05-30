@@ -30,7 +30,7 @@ $def with (borrowLogs)
 					<tbody id="logTbody">
 						$for log in borrowLogs:
 							<tr>
-								<td>$log.id</td>
+								<td class="id">$log.id</td>
 								<td>$log.project</td>
 								<td class="credit_storage">$log.credit_storage</td>
 								<td >$log.storage_name</td>
@@ -69,6 +69,7 @@ $def with (borrowLogs)
 						<thead>
 							<tr>
 								<th>仓库</th>
+								<th>编号</th>
 								<th>商品名称</th>
 								<th>供应商</th>
 								<th>库存数量</th>
@@ -77,6 +78,7 @@ $def with (borrowLogs)
 								<th>单个价格</th>
 								<th>含税总价</th>
 								<th>入库时间</th>
+								<th>操作</th>
 							</tr>
 						</thead>
 						<tbody id="stockTable">
@@ -145,6 +147,8 @@ $def with (borrowLogs)
 		var category=$$(val).parent().parent().find(".category_name").text();
 		var material=$$(val).parent().parent().find(".material_name").text();
 		var count = $$(val).parent().parent().find(".credit_count").text();
+		var id = $$(val).parent().parent().find(".id").text();
+		
 		//欠货的仓库
 		var storage = $$(val).parent().parent().find(".credit_storage").text();
 		
@@ -153,7 +157,7 @@ $def with (borrowLogs)
 		
 		$$.ajax({
 			type: "POST",
-			url: "/materialBorrow",
+			url: "/stockInfo",
 			data: JSON.stringify({category:category,material:material,count:count,storage:storage})
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
@@ -169,6 +173,10 @@ $def with (borrowLogs)
 				for(var i = 0 ; i < number ; i++ )
 				{
 					var tr = tableStock.insertRow(-1);
+					
+					var tdStorageName = tr.insertCell(-1);
+					var stock_id = material[i]['id']
+					tdStorageName.innerHTML = stock_id;
 					
 					var tdStorageName = tr.insertCell(-1);
 					tdStorageName.innerHTML = material[i]['storage_name'];
@@ -200,13 +208,27 @@ $def with (borrowLogs)
 					var tdTaxPrice = tr.insertCell(-1);	
 					tdTaxPrice.innerHTML = material[i]['tax_price'];
 					
-					var tdInTime = tr.insertCell(-1);	
+					var tdInTime = tr.insertCell(-1);
 					tdInTime.innerHTML = material[i]['create_time'];
-
+					
+					var tdButton = tr.insertCell(-1);
+					tdButton.innerHTML = "<button type='button' class='btn btn-primary' onclick='borrowMaterial("+id+","+stock_id+")'>提交</button>";
 				}
 			});
+	};
 	
-	}
-	
+	// 还货【欠货的那条出库日志id，选择哪一条库存id进行还货】
+	function borrowMaterial(credit_id, stock_id) {
+		
+		$$.ajax({
+			type: "POST",
+			url: "/materialBorrow",
+			data: JSON.stringify({credit_id:credit_id,stock_id:stock_id})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				
+			});
+		
+	};
 	
 </script>

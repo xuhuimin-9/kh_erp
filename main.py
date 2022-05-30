@@ -50,7 +50,8 @@ urls = (
     "/storageLogfilter", "StorageLogfilter",
     
     "/projecInfo", "ProjecInfo",
-    "/materialBorrow", "MaterialBorrow"
+    "/materialBorrow", "MaterialBorrow",
+    "/stockInfo","StockInfo"
 
 
 )
@@ -494,10 +495,10 @@ class StorageLogExport:
         data = json.loads(web.data())
         # 入库日志
         if(data['type']=="in"):
-            status = storage.exportInStorageLog(data)
+            status = storage.export_in_storage_log(data)
         # 出库日志
         elif (data['type'] == "out"):
-            status = storage.exportOutStorageLog(data)
+            status = storage.export_out_storage_log(data)
 
         result=""
         if(status==1):
@@ -506,15 +507,16 @@ class StorageLogExport:
             result = "未查询到操作！生成失败！"
         return json.dumps(result, cls=ComplexEncoder)
 
+# 日志筛选
 class StorageLogfilter:
     def POST(self):
         data = json.loads(web.data())
         # 入库日志筛选
         if (data['type'] == "in"):
-            log = storage.filterInStorageLog(data)
+            log = storage.filter_in_storage_log(data)
         # 出库日志筛选
         elif (data['type'] == "out"):
-            log = storage.filterOutStorageLog(data)
+            log = storage.filter_out_storage_log(data)
 
         result = {}
 
@@ -523,14 +525,18 @@ class StorageLogfilter:
 
         return json.dumps(result, cls=ComplexEncoder)
 
+# 借贷还货功能
 class MaterialBorrow:
     def GET(self):
+        # 申领仓库和实际出货仓库不一致的，即为跨库出货
         table="material_out_storage_log"
         borrowLogs = list(db.select(table,where="credit_storage!=storage_name",vars=locals()))
         return render.MaterialBorrow(borrowLogs)
+
     def POST(self):
-        info = json.loads(web.data())
-        material = storage.filterStorakBorrowinfo(info)
+        data = json.loads(web.data())
+
+        material = storage.material_borrow_info(data)
 
         result = {}
 
@@ -538,6 +544,17 @@ class MaterialBorrow:
 
         return json.dumps(result, cls=ComplexEncoder)
 
+# 根据欠货的那条日志，来找到符合还货的库存信息
+class StockInfo:
+    def POST(self):
+        info = json.loads(web.data())
+        material = storage.filter_stock_borrow_info(info)
+
+        result = {}
+
+        result['stock_info'] = material
+
+        return json.dumps(result, cls=ComplexEncoder)
 
 
 app = web.application(urls, globals())
