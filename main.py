@@ -530,16 +530,17 @@ class MaterialBorrow:
     def GET(self):
         # 申领仓库和实际出货仓库不一致的，即为跨库出货
         table="material_out_storage_log"
-        borrowLogs = list(db.select(table,where="apply_storage!=storage_name",vars=locals()))
+        borrowLogs = list(db.select(table,where="apply_storage!=storage_name AND status='borrow'",vars=locals()))
         return render.MaterialBorrow(borrowLogs)
 
     def POST(self):
         data = json.loads(web.data())
 
-        status = storage.material_borrow_info(data)
+        status = storage.material_returned_info(data)
 
         result = {
-            1: "借调功能：还货成功！",
+            0:  "借调功能：更新借调日志时出借，请联系后台人员！",
+            1:  "借调功能：还货成功！",
             -1: "借调功能：库存增加出错，请联系后台人员！",
             -2: "借调功能：库存减少出错，请联系后台人员！",
             -3: "借调功能：更新出库日志出错！",

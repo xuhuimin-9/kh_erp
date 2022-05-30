@@ -402,7 +402,7 @@ def filter_stock_borrow_info(data):
     return result
 
 # 还货功能
-def material_borrow_info(data):
+def material_returned_info(data):
 
     # 借货出库的出库记录id
     borrow_id = data['borrow_id']
@@ -451,11 +451,12 @@ def material_borrow_info(data):
     storage = borrow_info['storage_name']
     borrow_storage = borrow_info['apply_storage']
     batch = borrow_info['material_batch']
+    statusValue="return-"+borrow_id     #数据库记录还的哪一笔
     status = db.insert(table_name,
                        category_id=category_id, category_name=category_name, material_id=material_id,
                        name=material_name, unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
                        total_price=total_price, tax_price=tax_price, project=project, storage_name=storage,
-                       supplier=supplier, apply_storage=borrow_storage, material_batch=batch
+                       supplier=supplier, apply_storage=borrow_storage, material_batch=batch,status=statusValue
                        )
 
 
@@ -490,17 +491,22 @@ def material_borrow_info(data):
 
     status = db.update(table_name, where="id=$stock_id", vars=locals(), count=new_count, tax_price=new_tax_price)
     if (not status):
-        return -2;  # 更新库存信息
+        return -2     # 更新库存信息
 
 
     '''     2.3更新出库日志       '''
-    if(update_material_out_log(stock_material,borrow_count,project)):
-        return 1
-    else:
-        return -3   #更新出库日志出错
+    if(not update_material_out_log(stock_material,borrow_count,project,statusValue)):
+        return -3      #更新出库日志出错
+
+    '''     3更新该日志消息为已还     '''
+    status = db.update("material_out_storage_log",where="id=$borrow_id",vars=locals(),status="returned")
+    if (not status):
+        return 0
+    return 1
 
 
-def update_material_out_log(stock_material,borrow_count,project):
+
+def update_material_out_log(stock_material,borrow_count,project,statusValue):
 
     table_name = "material_out_storage_log"
     stock_material_info = stock_material[0]
@@ -532,9 +538,9 @@ def update_material_out_log(stock_material,borrow_count,project):
                        category_id=category_id, category_name=category_name, material_id=material_id,
                        name=material_name, unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
                        total_price=total_price, tax_price=tax_price, project=project, storage_name=storage,
-                       supplier=supplier, apply_storage=storage, material_batch=batch
+                       supplier=supplier, apply_storage=storage, material_batch=batch,status=statusValue
                        )
-    if(status):
-        return 1
-    else :
+    if( not status):
         return 0
+    else:
+        return 1
