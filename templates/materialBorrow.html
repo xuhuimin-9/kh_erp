@@ -32,12 +32,12 @@ $def with (borrowLogs)
 							<tr>
 								<td class="id">$log.id</td>
 								<td>$log.project</td>
-								<td class="credit_storage">$log.credit_storage</td>
+								<td class="borrow_storage">$log.apply_storage</td>
 								<td >$log.storage_name</td>
 								<td class="category_name">$log.category_name</td>
 								<td class="material_name">$log.name</td>
 								<td>$log.unit</td>
-								<td class="credit_count">$log.count</td>
+								<td class="borrow_count">$log.count</td>
 								<td>$log.price</td>
 								<td>$log.invoice_type</td>
 								<td>$log.tax_rate</td>
@@ -146,11 +146,11 @@ $def with (borrowLogs)
 		
 		var category=$$(val).parent().parent().find(".category_name").text();
 		var material=$$(val).parent().parent().find(".material_name").text();
-		var count = $$(val).parent().parent().find(".credit_count").text();
+		var count = $$(val).parent().parent().find(".borrow_count").text();
 		var id = $$(val).parent().parent().find(".id").text();
 		
 		//欠货的仓库
-		var storage = $$(val).parent().parent().find(".credit_storage").text();
+		var storage = $$(val).parent().parent().find(".borrow_storage").text();
 		
 		//模态框 用来显示符合还货要求的货物信息
 		var tableStock = document.getElementById("stockTable");
@@ -218,12 +218,12 @@ $def with (borrowLogs)
 	};
 	
 	// 还货【欠货的那条出库日志id，选择哪一条库存id进行还货】
-	function borrowMaterial(credit_id, stock_id) {
+	function borrowMaterial(borrow_id, stock_id) {
 		
 		$$.ajax({
 			type: "POST",
 			url: "/materialBorrow",
-			data: JSON.stringify({credit_id:credit_id,stock_id:stock_id})
+			data: JSON.stringify({borrow_id:borrow_id,stock_id:stock_id})
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
 				alert(msgJson);

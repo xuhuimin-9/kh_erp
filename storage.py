@@ -110,7 +110,7 @@ def material_out_storage(current_material):
     # 所用项目
     project = current_material['project']
     # 申领仓库
-    credit_storage = current_material['creditStorage']
+    apply_storage = current_material['borrowStorage']
 
     '''     1.更新库存信息【数量、含税总价】        '''
     table_name = "material_io_storage_info";
@@ -169,11 +169,16 @@ def material_out_storage(current_material):
         total_price = tax_price
 
     table_name = "material_out_storage_log"
+    # 如申领仓库与实际仓库一致，则正常出库
+    if(storage==apply_storage):
+        statusValue="normal"
+    else:
+        statusValue="borrow"
     status = db.insert(table_name,
                        category_id=category_id, category_name=category_name, material_id=material_id,
                        name=material_name,unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
                        total_price=total_price,tax_price=tax_price, project=project, storage_name=storage,
-                       supplier=supplier,credit_storage=credit_storage, material_batch=batch
+                       supplier=supplier,apply_storage=apply_storage, material_batch=batch,status=statusValue
                        )
     if (not status):
         return -4  # 插入material_in_storage_log失败
@@ -382,7 +387,7 @@ def filter_out_storage_log(data):
 # 筛选仓库中符合还货要求的商品信息
 def filter_stock_borrow_info(data):
     # 欠货的仓库
-    credit_storage = data['storage']
+    borrow_storage = data['storage']
     # 欠货数量
     count = data['count']
     # 商品类型
@@ -392,7 +397,7 @@ def filter_stock_borrow_info(data):
 
     table_name = "material_io_storage_info"
     result = list(db.select(table_name,
-                       where="category_name=$category AND name=$material AND storage_name=$credit_storage AND count>=$count",
+                       where="category_name=$category AND name=$material AND storage_name=$borrow_storage AND count>=$count",
                        vars=locals()))
     return result
 
@@ -400,57 +405,57 @@ def filter_stock_borrow_info(data):
 def material_borrow_info(data):
 
     # 借货出库的出库记录id
-    credit_id = data['credit_id']
+    borrow_id = data['borrow_id']
 
     # 用来还货的库存记录id
     stock_id = data['stock_id']
 
     table_name="material_out_storage_log"
-    result = list(db.select(table_name,where="id=$credit_id",vars=locals()))
+    result = list(db.select(table_name,where="id=$borrow_id",vars=locals()))
 
-    credit_info = result[0]
+    borrow_info = result[0]
 
-    credit_count = credit_info['count']           # 借货数量
-    credit_material = credit_info['name']         # 借货商品
-    credit_supplier = credit_info['supplier']     # 借货供应商
-    credit_batch = credit_info['material_batch']  # 借货批次
+    borrow_count = borrow_info['count']           # 借货数量
+    borrow_material = borrow_info['name']         # 借货商品
+    borrow_supplier = borrow_info['supplier']     # 借货供应商
+    borrow_batch = borrow_info['material_batch']  # 借货批次
 
 
     '''     1.将调货的那笔库存，加回去      '''
     '''     1.1 通过批次（时间戳）来找到当时借用的哪一笔材料      '''
     table_name="material_io_storage_info"
-    result = list(db.select(table_name,where="create_time=$credit_batch AND name=$credit_material",vars=locals()))
+    result = list(db.select(table_name,where="create_time=$borrow_batch AND name=$borrow_material",vars=locals()))
     if(len(result)==1):
-        new_count = result[0]['count']+credit_count
+        new_count = result[0]['count']+borrow_count
         new_tax_price = float(Decimal(str(result[0]['tax_price'] / result[0]['count'] * new_count)))
-        db.update(table_name,where="create_time=$credit_batch AND name=$credit_material",
+        db.update(table_name,where="create_time=$borrow_batch AND name=$borrow_material",
                   vars=locals(),count=new_count,tax_price=new_tax_price)
     else:
         return -1   # 库存更新出错
 
     '''     1.2 存入出库日志表(将借货出库的那笔日志只更改数量再次存储)     '''
     table_name = "material_out_storage_log"
-    category_id = credit_info['category_id']
-    category_name = credit_info['category_name']
-    material_id = credit_info['material_id']
-    material_name = credit_info['name']
-    unit = credit_info['unit']
-    outCount = -credit_count
-    price = credit_info['price']
-    invoice = credit_info['invoice_type']
-    tax = credit_info['tax_rate']
-    total_price = credit_info['total_price']
-    tax_price = credit_info['tax_price']
-    project=credit_info['project']
-    supplier=credit_info['supplier']
-    storage = credit_info['storage_name']
-    credit_storage = credit_info['credit_storage']
-    batch = credit_info['material_batch']
+    category_id = borrow_info['category_id']
+    category_name = borrow_info['category_name']
+    material_id = borrow_info['material_id']
+    material_name = borrow_info['name']
+    unit = borrow_info['unit']
+    outCount = -borrow_count
+    price = borrow_info['price']
+    invoice = borrow_info['invoice_type']
+    tax = borrow_info['tax_rate']
+    total_price = borrow_info['total_price']
+    tax_price = borrow_info['tax_price']
+    project=borrow_info['project']
+    supplier=borrow_info['supplier']
+    storage = borrow_info['storage_name']
+    borrow_storage = borrow_info['apply_storage']
+    batch = borrow_info['material_batch']
     status = db.insert(table_name,
                        category_id=category_id, category_name=category_name, material_id=material_id,
                        name=material_name, unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
                        total_price=total_price, tax_price=tax_price, project=project, storage_name=storage,
-                       supplier=supplier, credit_storage=credit_storage, material_batch=batch
+                       supplier=supplier, apply_storage=borrow_storage, material_batch=batch
                        )
 
 
@@ -477,7 +482,7 @@ def material_borrow_info(data):
 
     # 计算该条商品信息的扣减完的库存
     current_count = stock_material[0]['count']
-    new_count = int(current_count) - int(credit_count)  # 当前数量减去出库数量
+    new_count = int(current_count) - int(borrow_count)  # 当前数量减去出库数量
 
     # 计算该条商品的最新入库含税总价
     current_tax_price = stock_material[0]['tax_price']
@@ -489,13 +494,13 @@ def material_borrow_info(data):
 
 
     '''     2.3更新出库日志       '''
-    if(update_material_out_log(stock_material,credit_count,project)):
+    if(update_material_out_log(stock_material,borrow_count,project)):
         return 1
     else:
         return -3   #更新出库日志出错
 
 
-def update_material_out_log(stock_material,credit_count,project):
+def update_material_out_log(stock_material,borrow_count,project):
 
     table_name = "material_out_storage_log"
     stock_material_info = stock_material[0]
@@ -506,7 +511,7 @@ def update_material_out_log(stock_material,credit_count,project):
     material_id = stock_material_info['material_id']
     material_name = stock_material_info['name']
     unit = stock_material_info['unit']
-    outCount = credit_count
+    outCount = borrow_count
     price = stock_material_info['price']
     tax = stock_material_info['tax_rate']
     invoice = stock_material_info['invoice_type']
@@ -527,7 +532,7 @@ def update_material_out_log(stock_material,credit_count,project):
                        category_id=category_id, category_name=category_name, material_id=material_id,
                        name=material_name, unit=unit, count=outCount, price=price, invoice_type=invoice, tax_rate=tax,
                        total_price=total_price, tax_price=tax_price, project=project, storage_name=storage,
-                       supplier=supplier, credit_storage=storage, material_batch=batch
+                       supplier=supplier, apply_storage=storage, material_batch=batch
                        )
     if(status):
         return 1

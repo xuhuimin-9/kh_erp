@@ -21,7 +21,7 @@ $def with (allCategory,materials,projects)
 						</select>
 
 						<h4 style="display : inline">	申领仓库</h4>
-						<select id="creditStorage" class="form-control form-control-placeholder" style="display : inline;width:auto;">
+						<select id="applyStorage" class="form-control form-control-placeholder" style="display : inline;width:auto;">
 							<option value="-1" disabled selected hidden>请选择</option>
 							<option>自动化</option><option>智能</option>
 						</select>
@@ -133,14 +133,14 @@ $def with (allCategory,materials,projects)
 		}
 
 		var project=document.getElementById("projectName").value;
-		var creditStorage=document.getElementById("creditStorage").value;
+		var applyStorage=document.getElementById("applyStorage").value;
 		
 		$$.ajax({
 			type: "POST",
 			url: "/outStorage",
 			
 			//向后端传送该商品的唯一id，出库数量，申领项目，申领仓库
-			data: JSON.stringify({id:id,outCount:count,project:project,creditStorage:creditStorage})
+			data: JSON.stringify({id:id,outCount:count,project:project,applyStorage:applyStorage})
 			}).done(function( msg ) {
 				alert(msg);
 				

@@ -530,7 +530,7 @@ class MaterialBorrow:
     def GET(self):
         # 申领仓库和实际出货仓库不一致的，即为跨库出货
         table="material_out_storage_log"
-        borrowLogs = list(db.select(table,where="credit_storage!=storage_name",vars=locals()))
+        borrowLogs = list(db.select(table,where="apply_storage!=storage_name",vars=locals()))
         return render.MaterialBorrow(borrowLogs)
 
     def POST(self):
