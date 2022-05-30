@@ -467,9 +467,11 @@ def material_borrow_info(data):
                                     vars=locals()))
     # 0未出过库 1已出库 -1已手动删除
     if len(current_status) == 1 and current_status[0]['status'] == 0:
-        db.update("material_in_storage_log",
+        status = db.update("material_in_storage_log",
                   where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
                   vars=locals(), status=1)  # 更新状态标志位
+        if (not status ):
+            return -4
 
     '''     2.2还货的这笔库存减少        '''
 
@@ -483,13 +485,15 @@ def material_borrow_info(data):
 
     status = db.update(table_name, where="id=$stock_id", vars=locals(), count=new_count, tax_price=new_tax_price)
     if (not status):
-        return -2;  # kh_material更新失败
+        return -2;  # 更新库存信息
 
 
     '''     2.3更新出库日志       '''
-    update_material_out_log(stock_material,credit_count,project)
+    if(update_material_out_log(stock_material,credit_count,project)):
+        return 1
+    else:
+        return -3   #更新出库日志出错
 
-    return
 
 def update_material_out_log(stock_material,credit_count,project):
 
@@ -525,3 +529,7 @@ def update_material_out_log(stock_material,credit_count,project):
                        total_price=total_price, tax_price=tax_price, project=project, storage_name=storage,
                        supplier=supplier, credit_storage=storage, material_batch=batch
                        )
+    if(status):
+        return 1
+    else :
+        return 0

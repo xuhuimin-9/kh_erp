@@ -226,6 +226,7 @@ $def with (borrowLogs)
 			data: JSON.stringify({credit_id:credit_id,stock_id:stock_id})
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
+				alert(msgJson);
 				
 			});
 		

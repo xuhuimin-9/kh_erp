@@ -536,13 +536,19 @@ class MaterialBorrow:
     def POST(self):
         data = json.loads(web.data())
 
-        material = storage.material_borrow_info(data)
+        status = storage.material_borrow_info(data)
 
-        result = {}
+        result = {
+            1: "借调功能：还货成功！",
+            -1: "借调功能：库存增加出错，请联系后台人员！",
+            -2: "借调功能：库存减少出错，请联系后台人员！",
+            -3: "借调功能：更新出库日志出错！",
+            -4: "借调功能：更新入库记录标志位出错！"
+        }
 
-        result['stock_info'] = material
+        value = result.get(status, None)
 
-        return json.dumps(result, cls=ComplexEncoder)
+        return json.dumps("提示：" + value, ensure_ascii=False)
 
 # 根据欠货的那条日志，来找到符合还货的库存信息
 class StockInfo:
