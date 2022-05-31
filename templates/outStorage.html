@@ -118,6 +118,14 @@ $def with (allCategory,materials,projects)
 	
 	function OutStorage(val){
 		
+		var project=document.getElementById("projectName").value;
+		var applyStorage=document.getElementById("applyStorage").value;
+		
+		if( project==-1 || applyStorage==-1 )
+		{
+			alert("未选择申领项目或申领仓库！");
+			return ;
+		}
 		var id=$$(val).parent().parent().find(".id").text();
 		
 		var count = $$(val).parent().parent().find(".outCount").val();
@@ -132,8 +140,7 @@ $def with (allCategory,materials,projects)
 			}
 		}
 
-		var project=document.getElementById("projectName").value;
-		var applyStorage=document.getElementById("applyStorage").value;
+		
 		
 		$$.ajax({
 			type: "POST",
