@@ -227,6 +227,7 @@ $def with (borrowLogs)
 			}).done(function( msg ) {
 				msgJson=JSON.parse(msg);
 				alert(msgJson);
+				window.location.reload(true);
 				
 			});
 		

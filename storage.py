@@ -110,7 +110,7 @@ def material_out_storage(current_material):
     # 所用项目
     project = current_material['project']
     # 申领仓库
-    apply_storage = current_material['borrowStorage']
+    apply_storage = current_material['applyStorage']
 
     '''     1.更新库存信息【数量、含税总价】        '''
     table_name = "material_io_storage_info";
@@ -474,7 +474,7 @@ def material_returned_info(data):
     # 0未出过库 1已出库 -1已手动删除
     if len(current_status) == 1 and current_status[0]['status'] == 0:
         status = db.update("material_in_storage_log",
-                  where="create_time=$material[0]['create_time'] AND name=$material[0]['name'] AND count=$material[0]['count']",
+                  where="create_time=$stock_material[0]['create_time'] AND name=$stock_material[0]['name'] AND count=$stock_material[0]['count']",
                   vars=locals(), status=1)  # 更新状态标志位
         if (not status ):
             return -4

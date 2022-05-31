@@ -34,7 +34,9 @@ $def with (outStorageLogs)
 					<thead>
 						<tr>
 							<th>编号</th>
-							<th>仓库</th>
+							<th>申领项目</th>
+							<th>申领仓库</th>
+							<th>实际仓库</th>
 							<th>类别名称</th>
 							<th>商品名称</th>
 							<th>商品单位</th>
@@ -44,7 +46,6 @@ $def with (outStorageLogs)
 							<th>税率</th>
 							<th>出库总价</th>
 							<th>含税总价</th>
-							<th>申领项目</th>
 							<th>操作时间</th>
 						</tr>
 					</thead>
@@ -52,6 +53,8 @@ $def with (outStorageLogs)
 						$for log in outStorageLogs:
 							<tr>
 								<td>$log.id</td>
+								<td>$log.project</td>
+								<td>$log.apply_storage</td>
 								<td>$log.storage_name</td>
 								<td>$log.category_name</td>
 								<td>$log.name</td>
@@ -62,7 +65,6 @@ $def with (outStorageLogs)
 								<td>$log.tax_rate</td>
 								<td>$log.total_price</td>
 								<td>$log.tax_price</td>
-								<td>$log.project</td>
 								<td>$log.create_time</td>
 							</tr>
 					</tbody>
@@ -134,6 +136,12 @@ $def with (outStorageLogs)
 
 					var tdId = tr.insertCell(-1);	//在最后增加一列
 					tdId.innerHTML = logs[i].id;
+					
+					var tdProject = tr.insertCell(-1);
+					tdProject.innerHTML = logs[i].project;
+					
+					var tdApplyStorage = tr.insertCell(-1);
+					tdApplyStorage.innerHTML = logs[i].apply_storage;
 
 					var tdStorageName = tr.insertCell(-1);
 					tdStorageName.innerHTML = logs[i].storage_name;
@@ -164,9 +172,6 @@ $def with (outStorageLogs)
 
 					var tdTaxPrice = tr.insertCell(-1);
 					tdTaxPrice.innerHTML = logs[i].tax_price;
-
-					var tdProject = tr.insertCell(-1);
-					tdProject.innerHTML = logs[i].project;
 
 					var tdTime = tr.insertCell(-1);
 					tdTime.innerHTML = logs[i].create_time;
