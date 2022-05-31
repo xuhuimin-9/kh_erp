@@ -460,7 +460,7 @@ class SearchMaterial:
 
             value = searchMaterial[i]['count']
             totalCount = totalCount + value
-        totalPrice = format(totalPrice, '.2f')
+        totalPrice = format(totalPrice, '.6f')
 
         result = {}
         result['msg'] = 'SUCCESS'

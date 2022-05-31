@@ -258,7 +258,7 @@ def export_in_storage_log(data):
         value = float(Decimal(str(logInfo[i - 1]['price'] * int(logInfo[i - 1]['count']))))
         sheet.write(i, 7, value)
         sheet.write(i, 8, logInfo[i - 1]['invoice_type'])
-        value = "%.2f%%" % (logInfo[i - 1]['tax_rate']*100)
+        value = "%.0f%%" % (logInfo[i - 1]['tax_rate']*100)
         sheet.write(i, 9, value)
         value = float(Decimal(str(logInfo[i - 1]['tax_price']/float(logInfo[i - 1]['count']))))
         sheet.write(i, 10, value)
@@ -423,6 +423,7 @@ def material_returned_info(data):
     borrow_material = borrow_info['name']         # 借货商品
     borrow_supplier = borrow_info['supplier']     # 借货供应商
     borrow_batch = borrow_info['material_batch']  # 借货批次
+    borrow_tax_price = borrow_info['tax_price']       # 借货的含税总金额
 
 
     '''     1.将调货的那笔库存，加回去      '''
@@ -431,7 +432,8 @@ def material_returned_info(data):
     result = list(db.select(table_name,where="create_time=$borrow_batch AND name=$borrow_material",vars=locals()))
     if(len(result)==1):
         new_count = result[0]['count']+borrow_count
-        new_tax_price = float(Decimal(str(result[0]['tax_price'] / result[0]['count'] * new_count)))
+        new_tax_price = result[0]['tax_price'] + borrow_tax_price
+        #new_tax_price = float(Decimal(str(result[0]['tax_price'] / result[0]['count'] * new_count)))
         db.update(table_name,where="create_time=$borrow_batch AND name=$borrow_material",
                   vars=locals(),count=new_count,tax_price=new_tax_price)
     else:

@@ -168,7 +168,7 @@ $def with (allCategory,materials)
 				
 				var tdAverage = tr.insertCell(-1);
 				var average=msgJson["total_price"]/msgJson["total_count"]
-				tdAverage.innerHTML =average.toFixed(2);;
+				tdAverage.innerHTML =average.toFixed(6);;
 				
 				var tdTaxPrice = tr.insertCell(-1);
 				tdTaxPrice.innerHTML = msgJson["total_price"];

@@ -112,11 +112,11 @@ $def with (allCategory,materials,recentOperate)
 		
 		//含税单价
 		var tax_price=price * ( 1 + tax_rate )
-		$$(this).parent().parent().find(".tax").val((tax_price).toFixed(2));
+		$$(this).parent().parent().find(".tax").val((tax_price).toFixed(6));
 		
 		//含税总价
 		var total_tax_price=price * ( 1 + tax_rate ) * count
-		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(2));
+		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(6));
     });
 	
 	//输入数量 根据未税额及税率算出含税金额
@@ -131,11 +131,11 @@ $def with (allCategory,materials,recentOperate)
 		
 		//含税单价
 		var tax_price=price * ( 1 + tax_rate )
-		$$(this).parent().parent().find(".tax").val((tax_price).toFixed(2));
+		$$(this).parent().parent().find(".tax").val((tax_price).toFixed(6));
 		
 		//含税总价
 		var total_tax_price=price * ( 1 + tax_rate ) * count
-		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(2));
+		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(6));
     });
 	
 	//输入税率 根据未锐金额及税率算出 含税单价 含税总价
@@ -146,11 +146,11 @@ $def with (allCategory,materials,recentOperate)
 		
 		//含税单价
 		var tax_price=price * ( 1 + tax_rate )
-		$$(this).parent().parent().find(".tax").val((tax_price).toFixed(2));
+		$$(this).parent().parent().find(".tax").val((tax_price).toFixed(6));
 		
 		//含税总价
 		var total_tax_price=price * ( 1 + tax_rate ) * count
-		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(2));
+		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(6));
     });
 	
 	//输入含税单价 根据含税单价及税率算出 未税税单价 未税总价 含税总价
@@ -161,7 +161,7 @@ $def with (allCategory,materials,recentOperate)
 
 		//未税单价
 		var untax_price=tax_price / (1 + tax_rate);
-		$$(this).parent().parent().find(".untax").val((untax_price).toFixed(2));
+		$$(this).parent().parent().find(".untax").val((untax_price).toFixed(6));
 
 		//未税总价
 		//var total_untax_price=untax_price * count;
@@ -169,7 +169,7 @@ $def with (allCategory,materials,recentOperate)
 
 		//含税总价
 		var total_tax_price=tax_price * count
-		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(2));
+		$$(this).parent().parent().find(".totalTax").val((total_tax_price).toFixed(6));
     });
 
 
