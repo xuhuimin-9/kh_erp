@@ -158,7 +158,8 @@ def material_out_storage(current_material):
     storage = material[0]['storage_name']
     supplier = material[0]['supplier']
 
-    value = float(Decimal(str(1 + tax)) * Decimal(str(price)))  #单个含税价
+    value = float(Decimal(str(material[0]['tax_price'] / material[0]['count'])))  #单个含税价
+    #value = float(Decimal(str(1 + tax)) * Decimal(str(price)))  #单个含税价
     tax_price = float(Decimal(str(value * int(outCount))))      #含税总价
 
     # 专票商品出库时的金额采用入库的未税单价金额
