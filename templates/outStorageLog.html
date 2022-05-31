@@ -165,7 +165,8 @@ $def with (outStorageLogs)
 					tdInvoice.innerHTML = logs[i].invoice_type;
 
 					var tdTax = tr.insertCell(-1);
-					tdTax.innerHTML = logs[i].tax_rate;
+					var value = Number(logs[i].tax_rate*100).toFixed()
+					tdTax.innerHTML = value+"%";
 
 					var tdTotalPrice = tr.insertCell(-1);
 					tdTotalPrice.innerHTML = logs[i].total_price;
