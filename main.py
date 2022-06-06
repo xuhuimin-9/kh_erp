@@ -378,8 +378,11 @@ class OutStorage:
         # 获取项目列表信息
         projects = model.select_table_from_sql("kh_project")
 
+        # 最近入库的十条操作记录
+        recentOperate = db.select("material_out_storage_log", order="create_time DESC", limit=5, vars=locals())
+
         time.sleep(0.5)
-        return render.OutStorage(list(allCategory), list(materials), list(projects))
+        return render.OutStorage(list(allCategory), list(materials), list(projects), list(recentOperate))
 
     def POST(self):
         # 存入material_io_storage_info库存信息表
@@ -474,14 +477,14 @@ class SearchMaterial:
 # 入库日志模块
 class InStorageLog:
     def GET(self):
-        logs = db.select("material_in_storage_log")
+        logs = db.select("material_in_storage_log",order="id DESC")
         time.sleep(0.5)
         return render.InStorageLog(list(logs))
 
 # 出库日志模块
 class OutStorageLog:
     def GET(self):
-        logs = db.select("material_out_storage_log")
+        logs = db.select("material_out_storage_log",order="id DESC",)
         time.sleep(0.5)
         return render.OutStorageLog(list(logs))
 

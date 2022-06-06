@@ -39,7 +39,7 @@ $def with (allCategory,materials)
 								$if materials :
 									<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
 							</td>
-							<td><select id="materialName" length="10px" class="form-control form-control-placeholder">
+							<td><select id="materialName" class="selectpicker" data-live-search="true" data-width="250px">
 								$for value in materials:
 									<option>$value.name</option>
 							</select></td>

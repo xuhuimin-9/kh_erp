@@ -66,7 +66,7 @@ $def with (allCategory,materials,recentOperate)
 										<input id="materialId" type="text" size="4" name="material_id" readonly="readonly" value=$materials[0].material_id>
 								</td>
 								
-								<td><select id="materialName">
+								<td><select id="materialName" class="selectpicker" data-live-search="true" data-width="120px">
 									$for value in materials:
 										<option>$value.name</option>
 								</select></td>

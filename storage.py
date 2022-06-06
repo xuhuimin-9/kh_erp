@@ -350,17 +350,17 @@ def filter_in_storage_log(data):
     if (storage == "全部"):
         if (timeSlot == "本月"):
             result = list(db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')",
-                               vars=locals()))
+                               order="id DESC",vars=locals()))
         elif (timeSlot == "全部"):
-            result = list(db.select(table_name, vars=locals()))
+            result = list(db.select(table_name, order="id DESC",vars=locals()))
     #指定仓库
     else:
         if (timeSlot == "本月"):
             result = list(db.select(table_name,
                                where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m') AND storage_name=$storage",
-                               vars=locals()))
+                               order="id DESC",vars=locals()))
         elif (timeSlot == "全部"):
-            result = list(db.select(table_name, where="storage_name=$storage", vars=locals()))
+            result = list(db.select(table_name, where="storage_name=$storage", order="id DESC",vars=locals()))
 
     return result
 
@@ -375,17 +375,17 @@ def filter_out_storage_log(data):
     if (storage == "全部"):
         if (timeSlot == "本月"):
             result = list(db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')",
-                               vars=locals()))
+                               order="id DESC",vars=locals()))
         elif (timeSlot == "全部"):
-            result = list(db.select(table_name, vars=locals()))
+            result = list(db.select(table_name, order="id DESC",vars=locals()))
     #指定仓库
     else:
         if (timeSlot == "本月"):
             result = list(db.select(table_name,
                                where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m') AND storage_name=$storage",
-                               vars=locals()))
+                                    order="id DESC", vars=locals()))
         elif (timeSlot == "全部"):
-            result = list(db.select(table_name, where="storage_name=$storage", vars=locals()))
+            result = list(db.select(table_name, order="id DESC",where="storage_name=$storage", vars=locals()))
 
     return result
 

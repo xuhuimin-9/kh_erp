@@ -1,4 +1,4 @@
-$def with (allCategory,materials,projects)
+$def with (allCategory,materials,projects,recentOperate)
 
 
 <div class="container">
@@ -12,49 +12,46 @@ $def with (allCategory,materials,projects)
 			<div id="outStorage" class="bs-example">
 
 				<div class="row" style="height:5%">
-					<div class="col-sm-12" style="text-align-last: justify;">
-						<h4 style="display : inline">申领项目</h4>
-						<select id="projectName" class="form-control form-control-placeholder" style="display : inline;width:auto;">
-							<option value="-1" disabled selected hidden>请选择</option>
+					<div class="col-sm-12" >
+						<select id="projectName" class="selectpicker" data-live-search="true" data-width="150px" style="display : inline;">
+							<option value="-1" disabled selected hidden>请选择项目名称</option>
 							$for value in projects:
 								<option>$value.name</option>
 						</select>
 
-						<h4 style="display : inline">	申领仓库</h4>
 						<select id="applyStorage" class="form-control form-control-placeholder" style="display : inline;width:auto;">
-							<option value="-1" disabled selected hidden>请选择</option>
+							<option value="-1" disabled selected hidden>请选择申领仓库</option>
 							<option>自动化</option><option>智能</option>
 						</select>
 						
-						<h4 style="display : inline">类别编号</h4>
+						<h4 style="display : inline">  类别编号</h4>
 						$if allCategory :
 							<input id="categoryId" type="text" size="3" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
 						$else :
 							<input id="categoryId" type="text" size="3" name="category_id" readonly="readonly" value="">
 							
-						<h4 style="display : inline">名称</h4>
+						<h4 style="display : inline"> 名称</h4>
 						<select id="categoryName" class="form-control form-control-placeholder" style="display : inline;width:auto;">
 							$for value in allCategory:
 								<option>$value.name</option>
 						</select>
 
-						<h4 style="display : inline">商品编号</h4>
+						<h4 style="display : inline">  商品编号</h4>
 						$if materials :
 							<input id="materialId" type="text" size="8" name="material_id" readonly="readonly" value=$materials[0].material_id>
 						$else :
 							<input id="materialId" type="text" size="8" name="category_id" readonly="readonly" value="">
 							
-						<h4 style="display : inline">名称</h4>
+						<h4 style="display : inline"> 名称</h4>
 						
-						<select id="materialName" class="form-control form-control-placeholder" style="display : inline;width:auto;">
+						<select id="materialName" class="selectpicker" data-live-search="true" data-width="250px" style="display:inline;">
 							$for value in materials:
 								<option>$value.name</option>
 						</select>
-						<button id="filter" type="button-lg" class="btn btn-primary">筛选</button>
+						<button id="filter" type="button-lg" class="btn btn-primary" >筛选</button>
 					</div>
 				</div>
 				<br>
-				
 				<table class="table table-striped" >
 					<thead>
 						<tr>
@@ -74,7 +71,22 @@ $def with (allCategory,materials,projects)
 						</tr>
 					</thead>
 					<tbody  id="storageTable">
-						
+						$for operate in recentOperate:
+							<tr>
+								<td>$operate.apply_storage</td>
+								<td>$operate.storage_name</td>
+								<td>$operate.project</td>
+								<td>$operate.name</td> 
+								<td>$operate.unit</td>
+								<td>$operate.supplier</td>
+								<td>/</td>
+								<td>$operate.price</td>
+								<td>$operate.invoice_type</td>
+								<td>$operate.tax_rate</td>
+								<td>$operate.tax_price</td>
+								<td>$operate.count</td>
+								<td>$operate.create_time</td>
+							</tr>
 						
 						
 					</tbody>
@@ -99,6 +111,7 @@ $def with (allCategory,materials,projects)
 </script>
 	
 <script type="text/javascript">
+
 	function test(val){ 
  
         //如果写成this会报错：Uncaught SyntaxError: Unexpected token 'this'，这是转过来的参数值的意思
