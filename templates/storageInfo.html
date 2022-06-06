@@ -23,14 +23,14 @@ $def with (allCategory,materials)
 					</thead>
 					<tbody>
 						<tr>
-							<td><select id="storageName">
+							<td><select id="storageName" class="form-control form-control-placeholder">
 								<option>全部</option><option>自动化</option><option>智能</option>
 								</select></td>
 							<td>
 								$if allCategory :
 								<input id="categoryId" type="text" size="10" name="category_id" readonly="readonly" value=$allCategory[0].serial_no>
 							</td>
-							<td><select id="categoryName" >
+							<td><select id="categoryName" class="form-control form-control-placeholder">
 								$for value in allCategory:
 									<option>$value.name</option>
 							</select></td>
@@ -39,7 +39,7 @@ $def with (allCategory,materials)
 								$if materials :
 									<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
 							</td>
-							<td><select id="materialName" length="10px">
+							<td><select id="materialName" length="10px" class="form-control form-control-placeholder">
 								$for value in materials:
 									<option>$value.name</option>
 							</select></td>
@@ -60,8 +60,8 @@ $def with (allCategory,materials)
 							<th>类别名称</th>
 							<th>商品名称</th>
 							<th>商品数量</th>
-							<th>含税均价</th>
-							<th>含税总价</th>
+							<th>均价</th>
+							<th>总价</th>
 							<th>操作</th>
 						</tr>
 					</thead>
