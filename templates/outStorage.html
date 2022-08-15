@@ -44,7 +44,7 @@ $def with (allCategory,materials,projects,recentOperate)
 							
 						<h4 style="display : inline"> 名称</h4>
 						
-						<select id="materialName" class="selectpicker" data-live-search="true" data-width="250px" style="display:inline;">
+						<select id="materialName" class="form-control" style="display : inline;width:auto;">
 							$for value in materials:
 								<option>$value.name</option>
 						</select>
@@ -97,7 +97,6 @@ $def with (allCategory,materials,projects,recentOperate)
 </div>
 
 
-<script src="static/jquery-1.9.1.min.js"></script>
 <script>
 
 	$$('body').on("input", ".untax", function () {
@@ -342,8 +341,9 @@ $def with (allCategory,materials,projects,recentOperate)
 							
 						}
 					}
+
 				}
-				
+			
 			});
 	});
 	

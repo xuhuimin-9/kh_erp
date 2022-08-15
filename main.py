@@ -502,6 +502,9 @@ class StorageLogExport:
         # 出库日志
         elif (data['type'] == "out"):
             status = storage.export_out_storage_log(data)
+        # 库存信息
+        elif (data['type'] == "storage"):
+            status = storage.export_storage_info(data)
 
         result=""
         if(status==1):

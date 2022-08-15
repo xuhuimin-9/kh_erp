@@ -269,8 +269,8 @@ def export_in_storage_log(data):
 
     today=datetime.today()
     today=today.strftime("%Y/%m/%d")
-    #work_book.save(fileName+".xls")
     work_book.save(r"C:\Users\ASUS\Desktop\仓库管理系统导出日志\\" + fileName + ".xls")
+    #work_book.save(r"C:\Users\ynkmw\Desktop\files\\" + fileName + ".xls")
     return 1
 
 # 导出指定时间段的出库日志内容
@@ -336,8 +336,58 @@ def export_out_storage_log(data):
 
     today=datetime.today()
     today=today.strftime("%Y/%m/%d")
-    #work_book.save(fileName+".xls")
-    work_book.save(r"C:\Users\ASUS\Desktop\仓库管理系统导出日志\\" + fileName + ".xls")
+    work_book.save(r"C:\Users\ASUS\Desktop\files\\" + fileName + ".xls")
+    #work_book.save(r"C:\Users\ynkmw\Desktop\files\\" + fileName + ".xls")
+    return 1
+
+# 导出当前库存信息
+def export_storage_info(data):
+    storage = data['storage']
+    fileName=data['fileName']
+
+    table_name="material_io_storage_info"
+
+    if (storage == "全部"):
+        result = db.select(table_name, vars=locals())
+    else:
+        result = db.select(table_name, where="storage_name=$storage", vars=locals())
+
+    if(not result):
+        return -1;  # 本月无操作
+
+    work_book = xlwt.Workbook(encoding='utf-8')
+    sheet = work_book.add_sheet('sheet')
+    sheet.write(0, 0, '编号')
+    sheet.write(0, 1, '实际仓库')
+    sheet.write(0, 2, '类别名称')
+    sheet.write(0, 3, '商品名称')
+    sheet.write(0, 4, '商品单位')
+    sheet.write(0, 5, '供应商')
+    sheet.write(0, 6, '库存数量')
+    sheet.write(0, 7, '未税单价')
+    sheet.write(0, 8, '发票类型')
+    sheet.write(0, 9, '税率')
+    sheet.write(0, 10, '含税总价')
+    logInfo=list(result)
+    number=len(logInfo)
+    for i in range(1,number+1):
+        sheet.write(i, 0, logInfo[i - 1]['id'])
+        sheet.write(i, 1, logInfo[i - 1]['storage_name'])
+        sheet.write(i, 2, logInfo[i - 1]['category_name'])
+        sheet.write(i, 3, logInfo[i - 1]['name'])
+        sheet.write(i, 4, logInfo[i - 1]['unit'])
+        sheet.write(i, 5, logInfo[i - 1]['supplier'])
+        sheet.write(i, 6, logInfo[i - 1]['count'])
+        sheet.write(i, 7, logInfo[i - 1]['price'])
+        sheet.write(i, 8, logInfo[i - 1]['invoice_type'])
+        value = "%.0f%%" % (logInfo[i - 1]['tax_rate'] * 100)
+        sheet.write(i, 9, value)
+        sheet.write(i, 10, logInfo[i - 1]['tax_price'])
+
+    today=datetime.today()
+    today=today.strftime("%Y/%m/%d")
+    work_book.save(r"C:\Users\ASUS\Desktop\files\\" + fileName + ".xls")
+    #work_book.save(r"C:\Users\ynkmw\Desktop\files\\" + fileName + ".xls")
     return 1
 
 # 筛选指定时间段的入库日志内容

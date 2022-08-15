@@ -7,7 +7,7 @@ $def with (allCategory,materials)
 	</div>
   
 	<div class="row">
-		<div >
+		<div>
 			<div>
 				<h4>请选择所需要出库的类别及商品</h4>
 				<table class="table table-striped" id="filterTable">
@@ -39,15 +39,23 @@ $def with (allCategory,materials)
 								$if materials :
 									<input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=$materials[0].material_id>
 							</td>
-							<td><select id="materialName" class="selectpicker" data-live-search="true" data-width="250px">
+							<td><select id="materialName" class="form-control" data-live-search="true" data-width="250px">
 								$for value in materials:
 									<option>$value.name</option>
 							</select></td>
 							<!-- <td><input id="materialId" type="text" size="10" name="material_id" readonly="readonly" value=""></td> -->
 							<!-- <td><select id="materialName" value=""> -->
 							<!-- </select></td> -->
+							<td>
+								<div class="btn-group">
+								<button id="search"  type="button" class="btn btn-primary btn-space" >
+									搜索
+								</button>
+								<button id="export"  type="button" class="btn btn-primary btn-space" >
+									全部导出
+								</button>
+							</div></td>
 							
-							<td><button id="search" type="button" class="btn btn-primary">搜索</button></td>
 						</tr>
 					
 					</tbody>
@@ -66,6 +74,12 @@ $def with (allCategory,materials)
 						</tr>
 					</thead>
 					<tbody id="storageTable">
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						<tr>
 					</tbody>
 				</table>
 			</div>
@@ -119,7 +133,34 @@ $def with (allCategory,materials)
 
 <script type="text/javascript">
 
-	
+	$$('#export').click(function(){
+		var storageName= document.getElementById("storageName").value;
+		var myDate = new Date((new Date).getTime() + 8*60*60*1000);
+		var time = myDate.toJSON().split('T').join(' ').substr(0,10); // 将1970/08/08转化成1970-08-08并取前10个
+		
+		if (storageName=="全部"){
+			filename="总库";
+		}
+		else if (storageName=="自动化"){
+			filename="自动化仓库";
+		}
+		else{
+			filename="智能仓库";
+		}
+		
+		filename = filename + "库存信息-" + time;
+		
+		$$.ajax({
+			type: "POST",
+			url: "/storageLogExport",
+			
+			data: JSON.stringify({type:"storage",storage:storageName,datetime:"",fileName:filename})
+			}).done(function( msg ) {
+				msgJson=JSON.parse(msg);
+				alert(msgJson);
+			});
+		
+	});
 	
 	$$('#search').click(function(){
 		
