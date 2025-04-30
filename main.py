@@ -233,12 +233,13 @@ class InStorage:
 
             # 获取第一个类别的所有商品信息
             materials=db.select("kh_material", where="category_id=$first_category_id", vars=locals())
+            sorted_materials = sorted(materials, key=lambda x: x.name)
 
         # 最近入库的十条操作记录
         recentOperate=db.select("material_in_storage_log", order="create_time DESC",limit=5, vars=locals())
 
         time.sleep(0.5)
-        return render.InStorage(list(allCategory),list(materials),list(recentOperate))
+        return render.InStorage(list(allCategory),list(sorted_materials),list(recentOperate))
 
     def POST(self):
         # 商品入库  1、如果库存有这个商品且价格一样的话，数量累加，但是之前的入库时间就乱了2、直接存库位里，能看到是啥时候入库的

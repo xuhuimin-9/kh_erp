@@ -216,14 +216,14 @@ def export_in_storage_log(data):
     table_name="material_in_storage_log"
     if(storage == "全部"):
         if(timeSlot == "本月"):
-            result=db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m')",
+            result=db.select(table_name, where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m') AND status!=-1",
                              vars=locals())
         elif(timeSlot == "全部"):
             result=db.select(table_name, vars=locals())
     else:
         if (timeSlot == "本月"):
             result = db.select(table_name,
-                               where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m') AND storage_name=$storage",
+                               where="DATE_FORMAT(create_time, '%Y%m')=DATE_FORMAT(CURDATE(), '%Y%m') AND storage_name=$storage AND status!=-1",
                                vars=locals())
         elif (timeSlot == "全部"):
             result = db.select(table_name, where="storage_name=$storage",vars=locals())
